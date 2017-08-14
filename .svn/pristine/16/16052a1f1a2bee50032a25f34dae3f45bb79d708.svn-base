@@ -1,0 +1,348 @@
+<template>
+  <!--我的信息-->
+  <div class="meDe">
+    <!--上部分-->
+    <div class="meDeTop">
+      <div class="meDeList">
+        <div class="meDeL">头像</div>
+        <div class="meDeR">
+          <div class="meDeRImg">
+            <img :src="userObj.headPicPath">
+          </div>
+          <div class="meDeRJ">
+            <img src="../../assets/mejian2x.png">
+          </div>
+        </div>
+      </div>
+      <div class="meDeList" @click="name">
+        <div class="meDeL">昵称</div>
+        <div class="meDeR">
+          <div class="meDeRcon" id="meDeRni" v-text="userObj.username"></div>
+          <div class="meDeRJ">
+            <img src="../../assets/mejian2x.png">
+          </div>
+        </div>
+      </div>
+      <div class="meDeList xing" @click="sexq">
+        <div class="meDeL">性别</div>
+        <div class="meDeR">
+          <div class="meDeRcon selSex" v-text="sex"></div>
+          <div class="meDeRJ">
+            <img src="../../assets/mejian2x.png">
+          </div>
+        </div>
+      </div>
+    </div>
+    <!--下部分-->
+    <div class="meDeBot bot">
+      <div class="meDeList" @click="phone">
+        <div class="meDeL">手机号码</div>
+        <div class="meDeR">
+          <div class="meDeRcon" v-text="userObj.phone"></div>
+          <div class="meDeRJ">
+            <img src="../../assets/mejian2x.png">
+          </div>
+        </div>
+      </div>
+      <div class="meDeList" @click="pass">
+        <div class="meDeL">修改密码</div>
+        <div class="meDeR">
+          <div class="meDeRJ">
+            <img src="../../assets/mejian2x.png">
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="exit" @click="exit">
+      退出账号
+    </div>
+    <!--修改性别弹框-->
+    <div class="success" v-show="succ">
+      <div class="successMo">
+        <div class="successTop" @click="selectSex(1)">男</div>
+        <div class="successZhong" @click="selectSex(2)">女</div>
+        <div class="successBottom" @click="selectSex(0)">保密</div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  /*整个背景*/
+  .meDe {
+    background-color: #efeff4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*上部分和下部分*/
+  .meDeTop, .meDeBot {
+    background-color: #FFFFFF;
+    border-top: 1px solid #e5e5e5;
+    margin-top: 10px;
+  }
+
+  /*每一条*/
+  .meDeList {
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+    justify-content: space-between;
+    height: 56px;
+    line-height: 56px;
+    width: 100%;
+    padding-left: 20px;
+    padding-right: 15px;
+  }
+
+  .xing, .bot {
+    border: none;
+  }
+
+  /*每一条前面的label*/
+  .meDeL {
+    font-size: 16px;
+    color: #000000;
+  }
+
+  /*右侧*/
+  .meDeR {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  /*右侧头像*/
+  .meDeRImg {
+    margin-top: -2px;
+    border-radius: 50%;
+    width: 41px;
+    height: 41px;
+  }
+
+  .meDeRcon {
+    font-size: 16px;
+    color: #999999;
+  }
+
+  .meDeRImg img {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*每一行的右箭头*/
+  .meDeRJ {
+    margin-left: 10px;
+    width: 15px;
+    height: 15px;
+  }
+
+  .meDeRJ img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*退出账号*/
+  .exit {
+    background-color: #FFFFFF;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    height: 48px;
+    line-height: 48px;
+    font-size: 16px;
+    color: #000000;
+  }
+
+  /*修改性别弹框*/
+  .success {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 56;
+  }
+
+  .successMo {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    width: 246px;
+    margin: 230px auto;
+  }
+
+  .successTop, .successZhong {
+    border-bottom: 1px solid #e5e5e5;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: #007AFF;
+  }
+
+  .successBottom {
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: #007AFF;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        succ: false,
+        userObj: {},
+        sex: ""
+      }
+    },
+    created: function () {
+      var _this = this;
+      var userId = user.id;
+//      获取个人信息
+      $.ajax({
+        type: 'GET',
+        url: url + '/login/userOption',
+        data: {uid: userId},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.userObj = response.user;
+            var sexAuto = _this.userObj.gender;
+            if (sexAuto == "1") {
+                _this.sex = "男";
+            }else if (sexAuto == "2") {
+              _this.sex = "女";
+            }else if (sexAuto == "0") {
+              _this.sex = "保密";
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+    },
+    methods: {
+//         昵称
+      name () {
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          var ni = $("#meDeRni").text();
+          this.$router.push({path: '/name/' + ni});
+        }
+      },
+//      性别
+      sexq () {
+          alert("asd");
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          this.succ = true;
+        }
+      },
+//      选择性别
+      selectSex (num) {
+        if (num == 1) {
+          var selSex = "1";
+          var _this = this;
+          var yanPhone = user.phone;
+          $.ajax({
+            type: 'POST',
+            url: url + '/login/updateUser',
+            data: {phone: yanPhone, gender: selSex},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                var tokens = response.result.token;
+                token = tokens.key;
+                alert("修改性别成功");
+                _this.succ = false;
+                _this.$router.push({path: '/meDe'});
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        } else if (num == 2) {
+          var selSex = "2";
+          var _this = this;
+          var yanPhone = user.phone;
+          $.ajax({
+            type: 'POST',
+            url: url + '/login/updateUser',
+            data: {phone: yanPhone, gender: selSex},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                var tokens = response.result.token;
+                token = tokens.key;
+                alert("修改性别成功");
+                _this.succ = false;
+                _this.$router.push({path: '/meDe'});
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        } else if (num == 0) {
+          var selSex = "0";
+          var _this = this;
+          var yanPhone = user.phone;
+          $.ajax({
+            type: 'POST',
+            url: url + '/login/updateUser',
+            data: {phone: yanPhone, gender: selSex},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                var tokens = response.result.token;
+                token = tokens.key;
+                alert("修改性别成功");
+                _this.$router.push({path: '/meDe'});
+                _this.succ = false;
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+//       手机号码
+      phone () {
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          this.$router.push({path: '/phone'});
+        }
+      },
+//       修改密码
+      pass () {
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          this.$router.push({path: '/pass'});
+        }
+      },
+//      退出账号
+      exit () {
+          if (user) {
+              user =null;
+            this.$router.push({path: '/'});
+          }
+      }
+    }
+  }
+</script>

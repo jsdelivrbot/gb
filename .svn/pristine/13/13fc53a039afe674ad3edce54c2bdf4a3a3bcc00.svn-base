@@ -1,0 +1,113 @@
+<template>
+  <!--我的收藏-->
+  <div class="collect">
+    <div>
+      <ul class="collLists">
+        <li class="collList" v-for="item in collectList">
+          <div class="collBorder">
+            <div class="collCon">
+              <div class="collCon-title" v-text="item.title"></div>
+              <div class="collCon-play">
+                <span class="coll-source">五星体育</span>
+                <span class="coll-comment" v-text="item.replys + '评论'"></span>
+                <span class="coll-time" v-text="item.publishTime">publishTime</span>
+              </div>
+            </div>
+            <div class="collImg">
+              <img :src="item.picPath">
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</template>
+
+<style>
+  .collLists {
+    border-top: 1px solid #cccccc;
+    overflow: hidden;
+  }
+
+  /*每一条*/
+  .collList {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /*包裹内容的div*/
+  .collBorder {
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+  }
+
+  /*左侧文字*/
+  .collCon {
+    flex: 1;
+  }
+
+  /*新闻标题*/
+  .collCon-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  /*发布时间*/
+  .collCon-play {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  /*新闻右侧图片*!*/
+  .collImg {
+    margin-top: 9px;
+    margin-bottom: 10px;
+    width: 134px;
+    height: 77px;
+  }
+
+  .collImg img {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+          collectList: []
+      }
+    },
+    created: function () {
+//      判断是否有user
+      if (!user) {
+        this.$router.push({path: '/login'});
+      } else {
+        var userId = user.id;
+        var _this = this;
+//        获取收藏列表
+        $.ajax({
+          type: 'GET',
+          url: url + '/personal/collectionList',
+          data: {uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.collectList = response.result;
+              console.log(_this.collectList);
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+    }
+  }
+</script>

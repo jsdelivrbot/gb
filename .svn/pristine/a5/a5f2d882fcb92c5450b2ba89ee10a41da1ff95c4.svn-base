@@ -1,0 +1,169 @@
+<template>
+  <!--装备新闻-->
+  <div class="mentNew">
+    <!--装备轮播图-->
+    <swiper class="swiper-box" :options="swiperOption">
+      <swiper-slide class="swiper" v-for="(slide1,ind) in mentImg" :key="slide1">
+        <div class="banner-item" :style="'background-image: url('+slide1.picPath+')'"><img src="../../assets/tou.png" @click="quImg(ind)"></div>
+      </swiper-slide>
+      <div class="swiper-pagination" slot="pagination"></div>
+    </swiper>
+    <div class="lan"></div>
+    <!--装备新闻内容-->
+    <ul>
+      <li class="mentList" :class="{'fen':mentitem.gbDairy.dairyType == 1}" v-for="mentitem in mentNew"
+          @click="goDeta(mentitem.gbDairy.id,
+              mentitem.gbDairy.uid,
+              mentitem.gbDairy.title,
+              mentitem.gbDairy.dairyType,
+              mentitem.gbDairy.publishTime,
+              mentitem.gbDairy.username,
+              mentitem.gbDairy.description,
+              2,
+              mentitem.gbDairy.artReads
+              )">
+        <!--普通新闻-->
+        <div class="mentCon" v-show="mentitem.gbDairy.dairyType == 1">
+          <div class="mentCon-title" v-text="mentitem.gbDairy.title"></div>
+          <div class="mentCon-play">
+            <span class="ment-source" v-text="mentitem.gbDairy.dairyType"></span>
+            <span class="ment-comment" v-text="mentitem.gbDairy.replys+'评论'"></span>
+            <span class="ment-time" v-text="mentitem.gbDairy.publishTime"></span>
+          </div>
+        </div>
+        <div class="mentImg" v-show="mentitem.gbDairy.dairyType == 1">
+          <div class="banner-item" :style="'background-image: url('+mentitem.gbDairy.picPath+')'"><img src="../../assets/newList.png" ></div>
+        </div>
+        <!--GB话题-->
+        <div class="gbtitle" v-show="mentitem.gbDairy.dairyType == 2" v-text="mentitem.gbDairy.title"></div>
+        <div class="trends-img" v-show="mentitem.gbDairy.dairyType == 2">
+          <ul class="list-imgs">
+            <li class="trend-img" v-for="img in mentitem.pics">
+              <img :src="img.filePath">
+            </li>
+          </ul>
+        </div>
+        <div class="gbplay" v-show="mentitem.gbDairy.dairyType == 2">
+          <span class="gbsource">GB话题</span>
+          <span class="sport-comment" v-text="mentitem.gbDairy.replys+'评论'"></span>
+          <span class="sport-time" v-text="mentitem.gbDairy.publishTime"></span>
+        </div>
+      </li>
+    </ul>
+    <infinite-loading :class="{'hideLoad':noLoad == 1}" :on-infinite="onInfinite1"
+                      ref="infiniteLoading"></infinite-loading>
+  </div>
+</template>
+
+<style>
+
+</style>
+
+<script>
+  import {swiper, swiperSlide, swiperPlugins} from 'vue-awesome-swiper';
+  import InfiniteLoading from 'vue-infinite-loading';
+  var moment = require('moment');
+  moment.locale('zh-cn');
+  export default{
+    data () {
+      return {
+        noLoad: 0,
+        mentNew: [],
+        mentImg: [],
+        swiperOption: {
+          loop: true,
+          autoplay: 3000,                       //自动播放间隔时间
+          setWrapperSize: true,
+          pagination: '.swiper-pagination',
+          paginationClickable: true,            //点击某一个圆点跳转到相应图片
+          autoplayDisableOnInteraction: false   //操作之后会继续自动滑动
+        },
+        pageInt: 1
+      };
+    },
+    created: function () {
+      var _this = this;
+      //    时间戳转换日期
+      function times1() {
+        _this.mentNew.map((v1) => {
+          return (v1.gbDairy.publishTime = moment(Number(v1.gbDairy.publishTime)).fromNow());
+        });
+      }
+
+      //      装备新闻轮播图
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/carouselPicsList',
+        data: {cartId: 2},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.mentImg = response.result;
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+//        装备新闻内容
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/artcleList',
+        data: {cartId: 2, page: _this.pageInt, pageSize: 15},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.pageInt = _this.pageInt + 1;
+            _this.mentNew = response.result;
+            times1();
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+    },
+    methods: {
+//        点击某一条封面图跳转
+      quImg(ind) {
+        var imgUrls = this.mentNew[ind].picPath;
+        window.location.href = imgUrls;
+      },
+//      点击某一条新闻进入详情页
+      goDeta (newId, newuId, newTitle, newUrl, newTime, newName, newDesc, num, readys) {
+        this.$router.push({path: '/detalis/' + newId + '/' + newuId + '/' + newTitle + '/' + newUrl + '/' + newTime + '/' + newName + '/' + newDesc + '/' + num + '/' + readys});
+      },
+//      装备新闻上拉加载
+      onInfinite1() {
+        function times2(sportObj) {
+          sportObj.map((v) => {
+            return (v.gbDairy.publishTime = moment(Number(v.gbDairy.publishTime)).fromNow());
+          });
+        }
+
+        var _this = this;
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/artcleList',
+          data: {cartId: 2, page: _this.pageInt, pageSize: 15},
+          success: function (response) {
+            if (response.error == 0) {
+              var sd = response.result;
+              _this.mentNew = _this.mentNew.concat(sd);
+              times2(sd);
+              if (sd.length == 0) {
+                _this.noLoad = 1;
+              }
+              _this.pageInt = _this.pageInt + 1;
+              _this.$refs.infiniteLoading.$emit('$InfiniteLoading:loaded');
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      },
+    },
+    components: {
+      InfiniteLoading,
+      swiper,
+      swiperSlide
+    }
+
+  };
+</script>

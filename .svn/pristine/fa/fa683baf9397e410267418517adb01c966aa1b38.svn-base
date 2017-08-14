@@ -1,0 +1,174 @@
+<template>
+  <!--我要抢-->
+  <div class="will">
+    <div class="shoes-content">
+      <ul class="df">
+        <li class="shoes" v-for="(item,index) in shoesList" @click="detalis(index)">
+          <div class="shoes-img">
+            <img :src="item.shoePicPath">
+          </div>
+          <div class="shoes-name" v-text="item.shoeName"></div>
+          <div class="shoes-style" v-text="item.shoeDesc"></div>
+          <div class="shoes-saleTime" v-text="item.publicTime+'发售'"></div>
+          <div class="xia">
+            <div class="shoes-price" v-text="'¥'+item.price"></div>
+            <div class="an">我要抢鞋</div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: 'PINGFANG SC';
+  }
+.will{
+  margin-top: 38px;
+  z-index: 1;
+}
+  /*抢鞋列表*/
+  .shoes-content {
+    width: 100%;
+    padding: 10px 0 0 0;
+    margin-bottom: 50px;
+  }
+
+  .df {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    width: 94%;
+    margin: 0 auto;
+  }
+
+  /*每一双鞋的区块*/
+  .shoes-content .shoes {
+    width: 49%;
+    margin-bottom: 18px;
+  }
+
+  .shoes-img {
+    position: relative;
+    width: 100%;
+    height: 0;
+    padding-top: 100%;
+  }
+
+  .shoes-img img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*鞋的名字*/
+  .shoes-name {
+    margin-top: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    color: #222222;
+    padding-left: 4px;
+    padding-right: 4px;
+    width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /*款式*/
+  .shoes-style {
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 11px;
+    color: #999999;
+  }
+
+  /*发售时间*/
+  .shoes-saleTime {
+    padding-left: 4px;
+    padding-right: 4px;
+    font-size: 11px;
+    color: #999999;
+  }
+
+  .xia {
+    padding-left: 4px;
+    padding-right: 4px;
+    width: 100%;
+    display: inline-flex;
+    justify-content: space-between;
+  }
+
+  /*价格*/
+  .shoes-price {
+    margin-top: 8px;
+    font-weight: 700;
+    font-size: 14px;
+    color: #222222;
+  }
+
+  .an {
+    border: 1px solid #ff1212;
+    border-radius: 3px;
+    height: 20px;
+    line-height: 20px;
+    width: 60px;
+    text-align: center;
+    font-size: 12px;
+    color: #ff1212;
+    position: relative;
+    top: 8px;
+    right: 14px;
+  }
+
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        shoesList: []
+      }
+    },
+    created: function () {
+//      获取抢鞋列表
+      $.ajax({
+        type: 'GET',
+        url: url + '/Shoes/presellList',
+        success: function (response) {
+          if (response.error == 0) {
+            _this.shoesList = response.preSell;
+            times();
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+      var _this = this;
+//    时间戳转换日期
+      function getNow(t) {
+        var date = new Date(t);
+        return (date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + (date.getDate()) + '日');
+      }
+      function times() {
+        _this.shoesList.map((v) => {
+          return (v.publicTime = getNow(Number(v.publicTime)));
+        });
+      }
+    },
+    methods: {
+//      详情
+      detalis (index) {
+        this.$router.push({path: '/shoeDe/' + this.shoesList[index].id});
+      }
+    }
+
+
+  }
+</script>

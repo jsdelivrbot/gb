@@ -1,0 +1,140 @@
+<template>
+  <div class="page">
+    <!--首页-->
+    <keep-alive>
+      <component :is="currentView">
+        <!-- 非活动组件将被缓存！ -->
+      </component>
+    </keep-alive>
+    <!--资讯／发现／我-->
+    <div class="pageTab">
+      <!--资讯-->
+      <div class="infor" @click="infor">
+        <div>
+          <img :src="inforImg">
+        </div>
+        <div class="txt" :class="{'selectColor':colorTxt == 1}">
+          资讯
+        </div>
+      </div>
+      <!--发现-->
+      <div class="find" @click="find">
+        <div>
+          <img :src="findImg"/>
+        </div>
+        <div class="txt" :class="{'selectColor':colorTxt == 2}">
+          发现
+        </div>
+      </div>
+      <!--我-->
+      <div class="me" @click="me">
+        <div>
+          <img :src="meImg"/>
+        </div>
+        <div class="txt" :class="{'selectColor':colorTxt == 3}">
+          我
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script>
+  import New from '../new/new.vue';
+  import find from '../find/find.vue';
+  import me from '../me/me.vue';
+  export default {
+    data () {
+      return {
+        currentView: New,
+        colorTxt: 1,
+        inforImg: "/songbo/resources/static/img/ddzx2x.png",
+        findImg: "/songbo/resources/static/img/ddfx2x.png",
+        meImg: "/songbo/resources/static/img/ddw2x.png"
+      }
+    },
+    beforeRouteEnter (to, from, next) {
+      next(vm => {
+        if (from.path == "/meDe" || from.path == "/collect" || from.path == "/count" || from.path == "/feed" || from.path == "/about") {
+          vm.currentView = me;
+          vm.inforImg = "/songbo/resources/static/img/ddzz2x.png";
+          vm.findImg = "/songbo/resources/static/img/ddfx2x.png";
+          vm.meImg = "/songbo/resources/static/img/ddwx2x.png";
+          vm.colorTxt = 3;
+        }else if (from.path == "/sell" || from.path == "/rob") {
+          vm.currentView = find;
+          vm.inforImg = "/songbo/resources/static/img/ddzz2x.png";
+          vm.findImg = "/songbo/resources/static/img/ddfxx2x.png";
+          vm.meImg = "/songbo/resources/static/img/ddw2x.png";
+          vm.colorTxt = 2;
+        }
+      })
+    },
+    components: {
+      New,
+      find,
+      me
+    },
+    methods: {
+//      资讯
+      infor () {
+        this.currentView = New;
+        this.inforImg = "/songbo/resources/static/img/ddzx2x.png";
+        this.findImg = "/songbo/resources/static/img/ddfx2x.png";
+        this.meImg = "/songbo/resources/static/img/ddw2x.png";
+        this.colorTxt = 1;
+      },
+//      发现
+      find () {
+        this.currentView = find;
+        this.inforImg = "/songbo/resources/static/img/ddzz2x.png";
+        this.findImg = "/songbo/resources/static/img/ddfxx2x.png";
+        this.meImg = "/songbo/resources/static/img/ddw2x.png";
+        this.colorTxt = 2;
+      },
+//      我
+      me () {
+        this.currentView = me;
+        this.inforImg = "/songbo/resources/static/img/ddzz2x.png";
+        this.findImg = "/songbo/resources/static/img/ddfx2x.png";
+        this.meImg = "/songbo/resources/static/img/ddwx2x.png";
+        this.colorTxt = 3;
+      }
+    }
+  }
+</script>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .pageTab {
+    border-top: 1px solid #cccccc;
+    background-color: #ffffff;
+    box-sizing: border-box;
+    position: fixed;
+    bottom: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 40px;
+    width: 100%;
+    font-size: 10px;
+    color: #929292;
+  }
+
+  .infor img, .find img, .me img {
+    width: 25px;
+    height: 25px;
+  }
+
+  .txt {
+    text-align: center;
+  }
+
+  /*选中字体高亮*/
+  .selectColor {
+    color: #ffcf0f;
+  }
+</style>

@@ -1,0 +1,1093 @@
+<template>
+  <!-- 资讯详情-->
+  <div class="detali">
+    <!--详情和评论-->
+    <div class="detalisBox">
+      <!--普通新闻详情-->
+      <div class="detaliTitle" v-show="dairyType == 1">
+        <div class="comtle" v-text="newtitle"></div>
+        <div class="comtleB">
+          <span class="comtleL" v-text="newurl"></span>
+          <span class="comtleR" v-text="newtime"></span>
+        </div>
+      </div>
+      <iframe class="iframe" :src=" url + '/artcle/getArtcle?aid=' + newId"
+              v-show="dairyType == 1"
+              border=0
+              marginWidth=0
+              frameSpacing=0
+              marginHeight=0
+              frameBorder=0
+              noResize
+              scrolling="no"
+              width=100%
+              height=100%
+              vspale="0"
+              id="childFrame">
+
+      </iframe>
+      <!--话题新闻详情-->
+      <div class="huaDe">
+        <div class="gbtitle" v-text="newtitle" v-show="dairyType == 2"></div>
+        <div class="trends-img" v-show="dairyType == 2">
+          <ul class="list-imgss">
+            <li class="trend-imge" v-for="img in val.pics">
+              <img :src="img.filePath">
+            </li>
+          </ul>
+        </div>
+        <div class="replys" v-text="pshu + '回答'" v-show="dairyType == 2"></div>
+      </div>
+      <!--导购-->
+      <div class="sz" v-show="sz" @click="goUrl">
+        <div class="daoBox">
+          <div class="daoLeft">
+            <div class="banner-item daoLeft" :style="'background-image: url('+dao.picPath+')'"><img src="../../assets/daoImg.png"></div>
+          </div>
+          <div class="daoRight">
+            <div class="daoRT" v-text="dao.desc"></div>
+            <div class="daoRB">
+              <div class="pri" v-text="'¥' + dao.price"></div>
+              <div class="goMai">购买</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jia"></div>
+      <!--评论-->
+      <div class="comment">
+        <ul>
+          <li class="commentList" v-for="(ping,index) in replyList" :class="ping.autoImg ? 'autoImg2 kkk':'autoImg2'">
+            <!--左边头像-->
+            <div class="comImg">
+              <img :src="ping.reply.userHeadPicPath">
+            </div>
+            <!--右边内容-->
+            <div class="comCon">
+              <div class="comTop">
+                <div class="comName" v-text="ping.reply.replyUsername"></div>
+                <div class="comIcon">
+                  <span class="comNum">{{ping.reply.admire || "0"}}</span>
+                  <div class="autoImg" @click="autoImga(index)"></div>
+                </div>
+              </div>
+              <div class="comBot" v-text="ping.reply.content"></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="sha" v-show="sha">
+        <div class="shaan" @click="writeInput">快来抢沙发</div>
+      </div>
+    </div>
+    <!--新输入框-->
+    <div class="newInput" v-show="newInput" @click="noStop">
+      <textarea type="text" id="newInput" placeholder="把您的建议写在这里"></textarea>
+      <div class="fa" @click="subOpin">发表</div>
+    </div>
+    <!--GB话题底部评论栏-->
+    <form class="gbhui" v-show="sub == 1">
+      <input type="text" class="form-control" id="Gbcon" placeholder="写回答" v-model="message">
+    </form>
+    <!--底部评论栏-->
+    <div class="foodCom" v-show="dairyType == 1">
+      <!--左侧输入框和图片-->
+      <div class="foodL">
+        <img class="xIcon" src="../../assets/xpl2x.png">
+        <form>
+          <input type="text" class="form-control" id="comCon" placeholder="写评论" @click="writeInput">
+        </form>
+      </div>
+      <!--右侧已阅读数-->
+      <div class="foodR">
+        <div class="iconBox">
+          <img class="xIcon xIcon1" :src="autoColl" @click="collection">
+        </div>
+        <div class="read" v-text="'已阅读:' + readys"></div>
+      </div>
+    </div>
+    <!--收藏弹框-->
+    <div class="collSucc-box" v-show="shareSucc">
+      <div class="collSucc">
+        <div class="collImgq">
+          <img class="kimh" :src="successImg">
+        </div>
+        <div class="collIcon" v-text="successIcon"></div>
+      </div>
+    </div>
+    <!--悬浮的回答按钮-->
+    <div class="answer" v-show="dairyType == 2" @click="writeInput">
+      <img src="../../assets/huida2x.png">
+    </div>
+    <!--用户验证-->
+    <div class="detale2" v-show="detale">
+      <div class="detaleMo">
+        <div class="moTop">用户验证</div>
+        <div class="moZhong">
+          <div class="motel">
+            <div class="telInput">
+              <input type="tel" class="ytel" name="tel" placeholder="请输入手机号">
+            </div>
+            <div class="obtains" @click="send" :disabled="time > 0" v-text="text"></div>
+          </div>
+          <div class="condInput">
+            <input type="number" class="nval" name="retrieve-code" placeholder="请输入手机验证码">
+          </div>
+        </div>
+        <div class="moBottom">
+          <div class="submit" @click="submit">提交</div>
+          <div class="qu" @click="hideyan">取消</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  /*用户验证*/
+  .ytel::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .nval::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .detale2 {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+    z-index: 56;
+  }
+
+  .detaleMo {
+    background-color: #FFFFFF;
+    border-radius: 12px;
+    width: 246px;
+    margin: 160px auto;
+  }
+
+  .moTop {
+    font-size: 16px;
+    height: 40px;
+    line-height: 40px;
+    text-align: center;
+    border-bottom: 1px solid rgb(229, 229, 229);
+  }
+
+  .moZhong {
+    border-bottom: 1px solid rgb(229, 229, 229);
+    padding: 10px;
+  }
+
+  .moZhong input {
+    border: none;
+    outline: none;
+  }
+
+  .motel {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .ytel {
+    flex: 1;
+    font-size: 14px;
+  }
+
+  .nval {
+    font-size: 14px;
+  }
+
+  .moBottom {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 10px;
+  }
+
+  .submit {
+    padding: 5px;
+    width: 54px;
+    text-align: center;
+    height: 23px;
+    line-height: 15px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #ffcf0f;
+    border-radius: 5px;
+  }
+
+  .qu {
+    padding: 5px;
+    width: 54px;
+    text-align: center;
+    height: 23px;
+    line-height: 15px;
+    font-size: 14px;
+    color: #ffffff;
+    background-color: #666666;
+    border-radius: 5px;
+  }
+
+  /*验证码按钮*/
+  .obtains {
+    width: 170px;
+    text-align: center;
+    height: 21px;
+    line-height: 21px;
+    font-size: 12px;
+    color: #ffffff;
+    background-color: #ffcf0f;
+    border-radius: 3px;
+  }
+
+  * {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  /*整个*/
+  .detali {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #efeff4;
+  }
+
+  /*头部*/
+  .detaliTitle {
+    border-top: 1px solid #cccccc;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #ffffff;
+    padding: 15px 10px 10px 10px;
+  }
+
+  .comtle {
+    font-family: Arial;
+    font-size: 22px;
+    color: #000000;
+    margin-bottom: 7px;
+    text-align: justify;
+  }
+
+  .comtleB {
+    font-size: 12px;
+    color: #999999;
+  }
+
+  /*GB话题回答数*/
+  .huaDe {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .replys {
+    margin-top: -15px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .jia {
+    background-color: #efeff4;
+    width: 100%;
+    height: 10px;
+  }
+
+  .answer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+  }
+
+  .answer img {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+
+  .iframe {
+    border: none;
+    width: 100%;
+  }
+
+  /*抢沙发按钮*/
+  .shaan {
+    padding: 5px;
+    border-radius: 5px;
+    width: 6em;
+    text-align: center;
+    border: 1px solid #cccccc;
+    margin: 100px auto;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*底部评论栏*/
+  .foodCom {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e5e5;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 39px;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+    z-index: 100;
+  }
+
+  /*底部评论栏左边图片*/
+  .foodL .xIcon {
+    position: absolute;
+    top: 9px;
+    left: 18px;
+    width: 20px;
+    height: 20px;
+  }
+
+  /*底部右边*/
+  .foodR {
+    display: flex;
+    font-size: 0;
+  }
+
+  .iconBox {
+    padding-right: 10px;
+  }
+
+  /*底部评论栏右边图片*/
+  .foodR .xIcon {
+    position: relative;
+    top: 9px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .read {
+    border-left: 1px solid #e5e5e5;
+    padding-left: 10px;
+    font-size: 14px;
+    height: 21px;
+    margin-top: 9px;
+  }
+
+  /*输入框*/
+  #comCon {
+    margin-top: 7px;
+    padding-left: 30px;
+    width: 137px;
+    height: 26px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .gbhui {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /*详情和评论*/
+  .detalisBox {
+    -webkit-overflow-scrolling: touch;
+    overflow-y: scroll;
+    margin-bottom: 39px;
+  }
+
+  /*评论部分*/
+  .comment {
+    background-color: #ffffff;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  /*每一条*/
+  .commentList {
+    display: flex;
+    padding-left: 10px;
+  }
+
+  /*左边头像*/
+  .comImg {
+    margin-top: 12px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+    width: 67px;
+    height: 67px;
+  }
+
+  .comImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*右边内容*/
+  .comCon {
+    flex: 1;
+    padding-top: 17px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  /*右上*/
+  .comTop {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 15px;
+    font-size: 0;
+  }
+
+  .comName {
+    font-size: 14px;
+    color: #000000;
+  }
+
+  .comNum {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 12px;
+    line-height: 20px;
+    color: #000000;
+  }
+
+  .autoImg {
+    background: url("../../assets/wdz2x.png") no-repeat 0 0/100% 100%;
+    margin-top: -4px;
+    margin-left: 5px;
+    vertical-align: top;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+  }
+
+  .kkk .autoImg {
+    background: url("../../assets/ydz2x.png") no-repeat 0 0/100% 100%;
+    margin-top: -4px;
+    margin-left: 5px;
+    vertical-align: top;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+  }
+
+  /*右下*/
+  .comBot {
+    position: relative;
+    top: 10px;
+    width: 80%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*收藏弹框*/
+  .collSucc-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 56;
+  }
+
+  .collSucc {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    margin: 230px auto;
+    width: 138px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .collImgq {
+    margin: 0 auto;
+    width: 27px;
+    height: 27px;
+  }
+
+  .collImgq .kimh {
+    width: 100%;
+    height: 100%;
+  }
+
+  .collIcon {
+    width: 118px;
+    margin: 11px auto 0;
+    text-align: center;
+    font-size: 16px;
+    color: #FFFFFF;
+  }
+
+  /*导购*/
+  .sz {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .daoBox {
+    border: 1px solid #ececec;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    width: 100%;
+    height: 90px;
+    padding: 15px 10px;
+    display: flex;
+  }
+
+  .daoLeft {
+    border-radius: 5px;
+    width: 139px;
+    height: 62px;
+    margin-right: 15px;
+  }
+
+  .daoLeft img {
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .daoRight {
+    flex: 1;
+  }
+
+  .daoRT {
+    font-size: 12px;
+    color: #000000;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .daoRB {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pri {
+    font-size: 12px;
+    color: #cc0000;
+  }
+
+  .goMai {
+    border: 1px solid #ececec;
+    margin-top: -3px;
+    width: 58px;
+    text-align: center;
+    height: 23px;
+    line-height: 21px;
+    font-size: 12px;
+    border-radius: 3px;
+    color: #ffcf0f;
+  }
+</style>
+
+<script>
+  export default{
+    props: {
+      second: {
+        type: Number,
+        default: 60
+      }
+    },
+    data () {
+      return {
+        sha: false,
+        detale: false,
+        time: 0,
+        sid: "",
+        newInput: false,
+        message: "",
+        sz: true,
+        url: url,
+        newId: "",
+        newuID: "",
+        newtitle: "",
+        newurl: "",
+        newtime: "",
+        newname: "",
+        newdesc: "",
+        num: "",
+        readys: "",
+        pic: "",
+        collType: "",
+        pshu: "",
+        val: {},
+        dairyType: 1,
+        sub: 0,
+        replyList: [],
+        dao: {},
+        shareSucc: false,
+        successImg: "/songbo/resources/static/img/tcg2.png",
+        successIcon: "收藏成功",
+        autoColl: "/songbo/resources/static/img/collw2x.png",
+        autoImg: false
+      };
+    },
+    created: function () {
+      document.title = "详情";
+      var _this = this;
+      var newId = _this.newId;
+//        转发文章
+      window.wxshare(
+        "",
+        "",
+        "'http://www.gbsports.com/songbo/artcle/getArtcle?aid=' + newId",
+        "",
+        function () {
+          _this.shareSucc = true;
+          _this.successIcon = "转发成功";
+          var d = 1;
+          var countdownd = null;
+
+          function timeShowd() {
+            d--;
+            if (d < 1) {
+              clearInterval(countdownd);
+              _this.shareSucc = false;
+            }
+          }
+
+          countdownd = setInterval(timeShowd, 1000);
+        }
+      );
+
+//  接收新闻id／作者id／文章标题／文章来源／发布时间／文章作者名字/文章描述/文章类型/是否收藏过的状态/文章封面图
+      _this.newId = this.$route.params.newid;
+      _this.newuID = this.$route.params.newuid;
+      _this.newtitle = this.$route.params.newtitle;
+      _this.newurl = this.$route.params.newurl;
+      _this.newtime = this.$route.params.newtime;
+      _this.newname = this.$route.params.newname;
+      _this.newdesc = this.$route.params.newdesc;
+      _this.num = this.$route.params.num;
+      _this.readys = this.$route.params.readys;
+//      判断是否收藏过该文章
+      if (user) {
+        userId = user.id;
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/isCollection',
+          data: {uid: userId,aid: _this.newId,artUid: _this.newuID},
+          success: function (response) {
+            if (response.error == 0) {
+              if (response.collection) {
+                _this.collType = false;
+                _this.autoColl = "/songbo/resources/static/img/collc2x.png";
+              } else {
+                _this.collType = true;
+                _this.autoColl = "/songbo/resources/static/img/collw2x.png";
+              }
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+//      获取导购
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/shoppingGuide',
+        data: {aid: _this.newId, artUid: _this.newuID},
+        success: function (response) {
+          if (response.error == 0) {
+            var daoObj = response.result;
+            if (!daoObj) {
+              _this.sz = false;
+            } else {
+              _this.dao = daoObj;
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+//      获取新闻内容
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/artcleList',
+        data: {cartId: _this.num},
+        success: function (response) {
+          if (response.error == 0) {
+            var gbDairyList = response.result;
+            for (var i = 0; i < gbDairyList.length; i++) {
+              if (gbDairyList[i].gbDairy.id == _this.newId && gbDairyList[i].gbDairy.dairyType == 2) {
+                _this.val = gbDairyList[i];
+                _this.dairyType = 2;
+              } else if (gbDairyList[i].gbDairy.id == _this.newId && gbDairyList[i].gbDairy.dairyType == 1) {
+                _this.val = gbDairyList[i];
+                _this.dairyType = 1;
+              }
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+//      获取评论列表
+      if (!user) {
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/replyList',
+          data: {aid: _this.newId, artcleUid: _this.newuID},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.replyList = response.result;
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      } else {
+        userId = user.id;
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/replyList',
+          data: {aid: _this.newId, artcleUid: _this.newuID, uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.replyList = response.result;
+              if (_this.replyList.length == 0) {
+                  _this.sha = true;
+              }
+              for (var i = 0; i < _this.replyList.length; i++) {
+                if (_this.replyList[i].admire == 0) {
+                  //切换点赞图标
+                  var thisItem = _this.replyList[i];
+                  _this.replyList.splice(i, 1, Object.assign({}, thisItem, {
+                    autoImg: true
+                  }));
+                }
+              }
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+    },
+    methods: {
+//      点击空白处隐藏输入框
+      qie () {
+        this.newInput = false;
+      },
+//      点击输入框显示输入框
+      writeInput(e){
+        e.stopPropagation();
+        this.newInput = !this.newInput;
+        setTimeout(function () {
+          $("#newInput").focus();
+        },20);
+      },
+//      阻止事件冒泡
+      noStop (e) {
+        e.stopPropagation();
+      },
+//      发送验证码方法
+      timer() {
+        if (this.time > 0) {
+          this.time = this.time - 1;
+          setTimeout(this.timer, 1000);
+        }
+      },
+      send() {
+        //          手机号／验证码类型
+        var yTel = $(".ytel").val();
+        var _this = this;
+        if (yTel == "") {
+          alert("手机号码不能为空！");
+        } else if (!(/^1[34578]\d{9}$/.test(yTel))) {
+          alert("手机号码有误!");
+        } else {
+          //          获取校验码
+          $.ajax({
+            type: 'GET',
+            url: url + '/sms/gethash',
+            data: {phone: yTel},
+            success: function (response) {
+              if (response.error == 0) {
+                var vcode = response.vcode;
+//              获取验证码
+                $.ajax({
+                  type: 'POST',
+                  url: url + '/sms/getsms',
+                  data: {phone: yTel, vcode: vcode, type: 2},
+                  success: function (response) {
+                    if (response.error == 0) {
+                      _this.sid = response.sid;
+                      _this.time = _this.second;
+                      _this.timer();
+                      _this.$emit('send')
+                    } else {
+                      alert(response.error_mesg);
+                    }
+                  }
+                });
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+//      提交验证
+      submit () {
+        var yTel = $(".ytel").val();
+        var nval = $(".nval").val();
+        var _this = this;
+        if (yTel == "") {
+          alert("手机号不能为空！");
+        } else if (nval == "") {
+          alert("验证码不能为空！");
+        } else {
+          $.ajax({
+            type: 'GET',
+            url: url + '/sms/checksms',
+            data: {phone: yTel, yzcode: nval, wxopenid: wxId, sid: _this.sid},
+            success: function (response) {
+              if (response.error == 0) {
+                console.log(response);
+//              获取token,user.phone
+                phone = response.user.phone;
+                token = response.token.key;
+                user = response.user;
+                _this.detale = false;
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+//      发表评论
+      subOpin () {
+//      判断是否有user
+        if (!user) {
+          this.detale = true;
+        } else {
+          var _this = this;
+          var ping = $("#newInput").val();
+          userId = user.id;
+          userName = user.username;
+          TitleImg = user.headPicPath;
+//          判断评论内容是否为空
+          if (ping != "") {
+            //              提交评论
+            $.ajax({
+              type: 'POST',
+              url: url + '/artcle/sendReply',
+              beforeSend: function (request) {
+                request.setRequestHeader("token", token);
+              },
+              data: {
+                uid: userId,                   //用户id
+                pic: TitleImg,                 //用户头像
+                content: ping,                 //评论内容
+                aid: _this.newId,              //文章id
+                artcleUid: _this.newuID,       //文章作者id
+                artcleUsername: _this.newname, //文章作者名字
+                artcleTitle: _this.newtitle,   //文章标题
+                replyUsername: userName        //用户名
+              },
+              success: function (response) {
+                if (response.error == 0) {
+//                  更新评论列表
+                  $.ajax({
+                    type: 'GET',
+                    url: url + '/artcle/replyList',
+                    data: {aid: _this.newId, artcleUid: _this.newuID},
+                    success: function (response) {
+                      if (response.error == 0) {
+                        _this.replyList = response.result;
+                        $("#newInput").val("");
+                        _this.newInput = false;
+                        _this.sha = false;
+                      } else {
+                        alert(response.error_mesg);
+                      }
+                    }
+                  });
+                } else {
+                  alert(response.error_mesg);
+                }
+              }
+            });
+          }
+
+        }
+      },
+//      收藏/取消收藏
+      collection () {
+//          判断是否有user
+        if (!user) {
+          this.detale = true;
+        } else {
+          console.log(this.collType);
+          var _this = this;
+          userId = user.id;
+          var picPath = "http://img5.imgtn.bdimg.com/it/u=3033811559,4205265412&fm=23&gp=0.jpg";
+//          判断是否收藏过该文章
+          if (this.collType) {
+//              收藏
+            $.ajax({
+              type: 'POST',
+              url: url + '/artcle/collectionArt',
+              data: {
+                title: _this.newtitle,      //文章标题
+                aid: _this.newId,           //文章id
+                artUsername: _this.newname, //文章作者名字
+                artUid: _this.newuID,       //文章作者id
+                picPath1: picPath,          //文章封面图
+                uid: userId,                //用户id
+                artDesc: _this.newdesc      //文章描述
+              },
+              beforeSend: function (request) {
+                request.setRequestHeader("token", token);
+              },
+              success: function (response) {
+                if (response.error == 0) {
+                  _this.collType = false;
+//                收藏成功
+                  _this.shareSucc = true;
+                  _this.autoColl = "/songbo/resources/static/img/collc2x.png";
+                  var i = 1;
+                  var countdown = null;
+
+                  function timeShow() {
+                    i--;
+                    if (i < 1) {
+                      clearInterval(countdown);
+                      _this.shareSucc = false;
+                    }
+                  }
+
+                  countdown = setInterval(timeShow, 1000);
+                } else {
+                  alert(response.error_mesg);
+                }
+              }
+            });
+          } else {
+//              取消收藏
+            $.ajax({
+              type: 'POST',
+              url: url + '/artcle/canselCollection',
+              data: {
+                uid: userId,                //用户id
+                aid: _this.newId,           //文章id
+                artUid: _this.newuID,       //文章作者id
+              },
+              success: function (response) {
+                if (response.error == 0) {
+                  _this.collType = true;
+//                取消收藏
+                  _this.shareSucc = true;
+                  _this.successImg = "/songbo/resources/static/img/tsb2x.png";
+                  _this.autoColl = "/songbo/resources/static/img/collw2x.png";
+                  _this.successIcon = "取消收藏";
+                  var q = 1;
+                  var countdownq = null;
+
+                  function timeShowq() {
+                    q--;
+                    if (q < 1) {
+                      clearInterval(countdownq);
+                      _this.shareSucc = false;
+                    }
+                  }
+
+                  countdownq = setInterval(timeShowq, 1000);
+                } else {
+                  alert(response.error_mesg);
+                }
+              }
+            });
+          }
+
+        }
+      },
+//      点赞
+      autoImga (index) {
+        var _this = this;
+//      点赞接口
+        if (!user) {
+          this.detale = true;
+        } else {
+          userId = user.id;
+          var userName = user.username;
+          var replyId = _this.replyList[index].reply.id;
+          $.ajax({
+            type: 'POST',
+            url: url + '/artcle/Admire',
+            data: {
+              aid: _this.newId,           //文章id
+              uid: userId,                //当前用户id
+              username: userName,         //当前用户名
+              artcleUid: _this.newuID,    //文章作者id
+              artcleTitle: _this.newtitle,//文章标题
+              artcleDesc: _this.newdesc,  //文章描述
+              id: replyId,                //该评论的id
+              isCancel: 0                 //点赞
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                var admireObj = response.admire;
+                console.log(response.admire.isCancel);
+//                  判断该用户是否点过赞(0未点赞／1已点赞)
+                if (admireObj.isCancel == 0) {
+//                切换点赞图标
+                  var thisItem = _this.replyList[index];
+                  _this.replyList.splice(index, 1, Object.assign({}, thisItem, {
+                    autoImg: true
+                  }));
+//                点赞数加1
+                  _this.replyList[index].reply.admire = _this.replyList[index].reply.admire + 1;
+                }
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+      //      隐藏验证模态框
+      hideyan () {
+        this.detale = false;
+      },
+//      点击导购
+      goUrl () {
+        window.open(this.dao.url);
+      }
+    },
+    computed: {
+      text() {
+        return this.time > 0 ? this.time + 's' : '获取验证码';
+      }
+    }
+
+
+  };
+</script>
+
+
+
+

@@ -1,0 +1,142 @@
+<template>
+  <!--我的收藏-->
+  <div class="collect">
+    <div>
+      <ul class="collLists">
+        <li class="collList" v-for="item in collectList"
+            @click="goDeli(
+              item.id,
+              item.uid,
+              item.title,
+              item.dairyType,
+              item.publishTime,
+              item.username,
+              item.description,
+              item.cartId,
+              item.replys,
+              item.reference
+              )">
+          <div class="collBorder">
+            <div class="collCon">
+              <div class="collCon-title" v-text="item.title"></div>
+              <div class="collCon-play">
+                <span class="coll-source" v-text="item.reference"></span>
+                <span class="coll-comment" v-text="item.replys + '评论'"></span>
+                <span class="coll-time" v-text="item.publishTime"></span>
+              </div>
+            </div>
+            <div class="collImg">
+              <img :src="item.picPath">
+            </div>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+  </div>
+</template>
+
+<style>
+  .collLists {
+    border-top: 1px solid #cccccc;
+    overflow: hidden;
+  }
+
+  /*每一条*/
+  .collList {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /*包裹内容的div*/
+  .collBorder {
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+  }
+
+  /*左侧文字*/
+  .collCon {
+    position: relative;
+    flex: 1;
+  }
+
+  /*新闻标题*/
+  .collCon-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  /*发布时间*/
+  .collCon-play {
+    position: absolute;
+    bottom: 13px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  /*新闻右侧图片*!*/
+  .collImg {
+    margin-top: 9px;
+    margin-bottom: 10px;
+    width: 134px;
+    height: 77px;
+  }
+
+  .collImg img {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+          collectList: []
+      }
+    },
+    created: function () {
+      document.title = "我的收藏";
+      //    时间戳转换日期
+      function getNow8(t) {
+        var date = new Date(t);
+        return (date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + (date.getDate()) + '日');
+      }
+
+      function time8() {
+        _this.collectList.map((v) => {
+          return (v.publishTime = getNow8(Number(v.publishTime)));
+        });
+      }
+
+        userId = user.id;
+        var _this = this;
+//        获取收藏列表
+        $.ajax({
+          type: 'GET',
+          url: url + '/personal/collectionList',
+          data: {uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.collectList = response.result;
+              time8();
+              console.log(_this.collectList);
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+    },
+    methods: {
+      goDeli (newId, newuId, newTitle, newUrl, newTime, newName, newDesc, num, readys) {
+        this.$router.push({path: '/detalis/' + newId + '/' + newuId + '/' + newTitle + '/' + newUrl + '/' + newTime + '/' + newName + '/' + newDesc + '/' + num + '/' + readys});
+      }
+    }
+  }
+</script>

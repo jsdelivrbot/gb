@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>GB</title>
+    <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.js"></script>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+    <link href="http://cdn.bootcss.com/bootstrap/3.3.6/css/bootstrap.min.css" rel="stylesheet">
+  </head>
+  <script>
+    var url = "http://www.gbsports.com/songbo";
+    //var url = "http://192.168.31.99:8080/shoe";
+    var result = window.localStorage.a;
+    var user;
+    var token;
+    var wxId;
+    var wxName;
+    var userId;
+    var shoeID;
+    var shoeID2;
+    var shoePic;
+    var shoeUrl;
+    var shoesSize;
+    var shoeN;
+    var shoeC;
+
+
+    if (!result) {
+      result = null;
+    } else {
+      result = JSON.parse(result);
+      wxId = result.wxuser.openid;
+      user = result.user;
+      if (!user) {
+        user = null;
+      }
+      if (!!result.token) {
+        token = result.token.key;
+      }
+    }
+
+
+    var herfUrl = window.location.href;
+    //  获取时间戳／签名／签名字符串
+    $.ajax({
+      type: 'GET',
+      url: url + '/sign',
+      data: {openid: wxId, url: herfUrl},
+      success: function (response) {
+        if (response.error == 0) {
+          var sd = response.result;
+          wx.config({
+            debug: false,                 // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: 'wx986414908c998d45',  // 必填，公众号的唯一标识
+            timestamp: sd.timestamp,      // 必填，生成签名的时间戳
+            nonceStr: sd.nonceStr,        // 必填，生成签名的随机串
+            signature: sd.signature,      // 必填，签名，见附录1
+            jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'] // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+          });
+
+//        wx.checkJsApi({
+//          jsApiList: ['onMenuShareTimeline', 'onMenuShareAppMessage'], // 需要检测的JS接口列表，所有JS接口列表见附录2,
+//          success: function(res) {
+//            // 以键值对的形式返回，可用的api值true，不可用为false
+//            // 如：{"checkResult":{"chooseImage":true},"errMsg":"checkJsApi:ok"}
+//            alert("apis are support");
+//          }
+//        });
+        }
+      }
+    });
+
+
+    //  微信分享方法
+    function wxshare(title, desc, link, imgUrl, callback) {
+      wx.ready(function () {
+        wx.onMenuShareTimeline({
+          title: title,     // 分享标题
+          desc: desc,       // 分享描述
+          link: link,       // 分享链接
+          imgUrl: imgUrl,   // 分享图标
+          success: function () {
+            // 用户确认分享后执行的回调函数
+            callback();
+          },
+          cancel: function () {
+            // 用户取消分享后执行的回调函数
+          }
+        });
+        wx.onMenuShareAppMessage({
+          title: title, // 分享标题
+          desc: desc, // 分享描述
+          link: link, // 分享链接
+          imgUrl: imgUrl, // 分享图标
+          success: function () {
+            // 用户确认分享后执行的回调函数
+            callback();
+          },
+          cancel: function () {
+            // 用户取消分享后执行的回调函数
+          }
+        });
+      });
+
+    }
+
+  </script>
+  <body>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  </body>
+</html>

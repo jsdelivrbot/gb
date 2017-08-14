@@ -1,0 +1,111 @@
+<template>
+  <!--抢鞋页面-->
+  <div class="robBox">
+    <!--顶部导航-->
+    <div class="robTable">
+      <div class="tableBox" :class="{'selectTable':index == 1}" @click="selTab(1)">我要抢</div>
+      <div class="tableBox" :class="{'selectTable':index == 2}" @click="selTab(2)">抢鞋动态</div>
+      <div class="tableBox" :class="{'selectTable':index == 3}" @click="selTab(3)">已抢到</div>
+    </div>
+    <!-- 三块内容-->
+    <keep-alive>
+      <component :is="currentView">
+        <!-- 非活动组件将被缓存！ -->
+      </component>
+    </keep-alive>
+  </div>
+</template>
+
+<style>
+  /*整个背景*/
+  .robBox {
+    border-top: 1px solid #cccccc;
+  }
+
+  /*顶部导航*/
+  .robTable {
+    position: fixed;
+    top: 0;
+    left: 0;
+    border-bottom: 1px solid #e5e5e5;
+    width: 100%;
+    height: 38px;
+    display: flex;
+    justify-content: space-between;
+    z-index: 100;
+    background-color: #FFFFFF;
+  }
+
+  .tableBox {
+    position: relative;
+    font-size: 14px;
+    color: #000000;
+    line-height: 38px;
+    width: 33%;
+    text-align: center;
+  }
+  .tableBox:after,
+  .tableBox:before{
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    background-color:#ffcf0f;
+    transition: all 0.3s;
+  }
+    /*选择某一条导航条样式*/
+  .selectTable {
+    color: #ffcf0f;
+  }
+  .selectTable:after,
+  .selectTable:before{
+    width: 33%;
+  }
+  .tableBox:after{
+    right: 50%;
+  }
+  .tableBox:before{
+    left: 50%;
+  }
+
+
+
+</style>
+
+<script>
+  import will from '../find/will.vue';
+  import trends from '../find/trends.vue';
+  import ready from '../find/ready.vue';
+  export default{
+    data () {
+      return {
+        currentView: will,
+        index: 1,
+      }
+    },
+    created: function () {
+      document.title = "抢鞋";
+    },
+    methods: {
+//      选择某一个导航
+      selTab (num) {
+        if (num == 1) {
+          this.index = 1;
+          this.currentView = will;
+        } else if (num == 2) {
+          this.index = 2;
+          this.currentView = trends;
+        } else if (num == 3) {
+          this.index = 3;
+          this.currentView = ready;
+        }
+      }
+    },
+    components: {
+      will,
+      trends,
+      ready
+    },
+  }
+</script>

@@ -1,0 +1,206 @@
+<template>
+  <!--登录-->
+  <div class="login">
+    <div class="login-box">
+      <!--logo -->
+      <div class="logo">
+        <img src="../../assets/登录-logo@2x.png">
+      </div>
+      <!--手机号-->
+      <div class="tel">
+        <div class="tel-icon">
+          <img src="../../assets/login2x.png">
+        </div>
+        <div class="tel-input">
+          <input type="tel" class="tel-val" name="tel" placeholder="手机号" v-model="tel">
+        </div>
+      </div>
+      <!--密码-->
+      <div class="password">
+        <div class="password-icon">
+          <img src="../../assets/dm2x.png">
+        </div>
+        <div class="password-input">
+          <input type="password" class="password-val" name="password" placeholder="密码" v-model="password">
+        </div>
+      </div>
+      <!--登录按钮-->
+      <div class="playLogin" @click="login">
+        登录
+      </div>
+      <!--忘记密码／注册账号-->
+      <div class="zhuan">
+        <div class="forget-txt">
+          <router-link to="/retrieve/1">忘记密码?</router-link>
+        </div>
+        <div class="register-txt">
+          <router-link to="/retrieve/0">注册账号</router-link>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .login-box {
+    padding: 15px 60px;
+  }
+
+  /*logo*/
+  .logo {
+    margin: 0 auto;
+    width: 109px;
+    height: 109px;
+    border-radius: 50%;
+  }
+
+  .logo img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*手机号／密码*/
+  .tel, .password {
+    padding-left: 6px;
+    display: flex;
+  }
+
+  .tel {
+    border-bottom: 1px solid #e5e5e5;
+    margin-top: 27px;
+  }
+
+  .password {
+    border-bottom: 1px solid #e5e5e5;
+    margin-top: 33px;
+  }
+
+  .tel-icon, .password-icon {
+    position: relative;
+    top: -2px;
+    width: 15px;
+    height: 16px;
+  }
+
+  .tel-icon img, .password-icon img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .tel-input, .password-input {
+    flex: 1;
+    margin-left: 10px;
+  }
+  .tel-val::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+  .password-val::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+  .tel-val, .password-val {
+    width: 100%;
+    border: none;
+    outline: none;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  /*登录按钮*/
+  .playLogin {
+    background-color: #ffcf0f;
+    opacity: 0.8;
+    margin-top: 26px;
+    height: 37px;
+    line-height: 37px;
+    text-align: center;
+    border-radius: 5px;
+    color: #ffffff;
+    font-size: 14px;
+  }
+
+  .playLogin a {
+    text-decoration: none;
+    color: #ffffff;
+  }
+
+  /*忘记密码／注册账号*/
+  .zhuan {
+    margin-top: 15px;
+    padding: 0 5px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+
+  }
+
+  .zhuan a {
+    text-decoration: none;
+    color: #999999;
+  }
+
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        tel: "",
+        password: ""
+      }
+    },
+    created: function () {
+      document.title = "登录";
+    },
+    methods: {
+//      登录
+      login () {
+        if (this.tel == "") {
+          alert("手机号不能为空!");
+        } else if (!(/^1[34578]\d{9}$/.test(this.tel))) {
+          alert("手机号码有误!");
+        } else if (this.password == "") {
+          alert("密码不能为空!");
+        } else{
+          var tel = this.tel;
+          var password = this.password;
+          var _this = this;
+          $.ajax({
+            type: 'POST',
+            url: url + '/login/login',
+            data: {phone: tel,password: password},
+            success: function (response) {
+              if (response.error == 0) {
+                user = response.user;
+                console.log(user);
+                phone = user.phone;
+//                  获取token
+                $.ajax({
+                  type: 'POST',
+                  url: url + '/login/getToken',
+                  data: {phone: tel, password: password},
+                  success: function (response) {
+                    if (response.error == 0) {
+                      token = response.token.key;
+                      window.localStorage.shab = 2;
+                      _this.$router.replace({ path: '/'});
+                    }else{
+                      alert(response.error_mesg);
+                    }
+                  }
+                });
+              }else{
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      }
+    }
+
+  };
+</script>

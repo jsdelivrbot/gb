@@ -1,0 +1,764 @@
+<template>
+  <!-- 资讯详情-->
+  <div class="detalis">
+    <!--详情和评论-->
+    <div class="detalisBox">
+      <!--普通新闻详情-->
+      <div class="detaliTitle" v-show="dairyType == 1">
+        <div class="comtle" v-text="newtitle"></div>
+        <div class="comtleB">
+          <span class="comtleL" v-text="newurl"></span>
+          <span class="comtleR" v-text="newtime"></span>
+        </div>
+      </div>
+      <iframe id="iframeBox" class="iframe" :src=" url + '/artcle/getArtcle?aid=' + newId"
+              v-show="dairyType == 1"></iframe>
+      <!--话题新闻详情-->
+      <div class="huaDe">
+        <div class="gbtitle" v-text="newtitle" v-show="dairyType == 2"></div>
+        <div class="trends-img" v-show="dairyType == 2">
+          <ul class="list-imgss">
+            <li class="trend-imge" v-for="img in val.pics">
+              <img :src="img.filePath">
+            </li>
+          </ul>
+        </div>
+        <div class="replys" v-text="pshu + '回答'" v-show="dairyType == 2"></div>
+      </div>
+      <!--导购-->
+      <div class="sz" v-show="sz">
+        <div class="daoBox">
+          <div class="daoLeft">
+            <img :src="dao.picPath">
+          </div>
+          <div class="daoRight">
+            <div class="daoRT" v-text="dao.desc"></div>
+            <div class="daoRB">
+              <div class="pri" v-text="'¥' + dao.price"></div>
+              <div class="goMai">购买</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="jia"></div>
+      <!--评论-->
+      <div class="comment">
+        <ul>
+          <li class="commentList" v-for="(ping,index) in replyList" :class="ping.autoImg ? 'autoImg2 kkk':'autoImg2'">
+            <!--左边头像-->
+            <div class="comImg">
+              <img :src="ping.reply.userHeadPicPath">
+            </div>
+            <!--右边内容-->
+            <div class="comCon">
+              <div class="comTop">
+                <div class="comName" v-text="ping.reply.artcleUsername"></div>
+                <div class="comIcon">
+                  <span class="comNum">{{ping.reply.admire || "0"}}</span>
+                  <div class="autoImg" @click="autoImga(index)"></div>
+                </div>
+              </div>
+              <div class="comBot" v-text="ping.reply.content"></div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <!--底部评论栏-->
+    <form class="gbhui" v-on:submit.prevent="sub2" v-show="sub == 1">
+      <input type="text" class="form-control" id="Gbcon" placeholder="写回答" v-model="message">
+    </form>
+    <div class="foodCom" v-show="dairyType == 1">
+      <!--左侧输入框和图片-->
+      <div class="foodL">
+        <img class="xIcon" src="../../assets/xpl2x.png">
+        <form v-on:submit.prevent="sub2">
+          <input type="text" class="form-control" id="comCon" placeholder="写评论" v-model="message">
+        </form>
+      </div>
+      <!--右侧已阅读数-->
+      <div class="foodR">
+        <div class="iconBox">
+          <img class="xIcon xIcon1" :src="autoColl" @click="collection">
+          <img class="xIcon" src="../../assets/zf2x.png">
+        </div>
+        <div class="read" v-text="'已阅读:' + readys"></div>
+      </div>
+    </div>
+    <!--收藏弹框-->
+    <div class="collSucc-box" v-show="shareSucc">
+      <div class="collSucc">
+        <div class="collImgq">
+          <img class="kimh" :src="successImg">
+        </div>
+        <div class="collIcon" v-text="successIcon"></div>
+      </div>
+    </div>
+    <!--悬浮的回答按钮-->
+    <div class="answer" v-show="dairyType == 2" @click="gbhui">
+      <img src="../../assets/huida2x.png">
+    </div>
+  </div>
+</template>
+
+<style>
+  /*整个*/
+  .detalis {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #efeff4;
+  }
+
+  /*头部*/
+  .detaliTitle {
+    border-top: 1px solid #cccccc;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #ffffff;
+    padding: 15px 10px 10px 10px;
+  }
+
+  .comtle {
+    font-family: Arial;
+    font-size: 22px;
+    color: #000000;
+    margin-bottom: 7px;
+  }
+
+  .comtleB {
+    font-size: 12px;
+    color: #999999;
+  }
+
+  /*GB话题回答数*/
+  .huaDe {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .replys {
+    margin-top: -15px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .jia {
+    background-color: #efeff4;
+    width: 100%;
+    height: 10px;
+  }
+
+  .answer {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+  }
+
+  .answer img {
+    border-radius: 50%;
+    width: 100%;
+    height: 100%;
+  }
+
+  .iframe {
+    border: none;
+    width: 100%;
+    height: 1250px;
+  }
+
+  /*底部评论栏*/
+  .foodCom {
+    background-color: #ffffff;
+    border-top: 1px solid #e5e5e5;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 39px;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  /*底部评论栏左边图片*/
+  .foodL .xIcon {
+    position: absolute;
+    top: 9px;
+    left: 18px;
+    width: 20px;
+    height: 20px;
+  }
+
+  /*底部右边*/
+  .foodR {
+    display: flex;
+    font-size: 0;
+  }
+
+  .iconBox {
+    padding-right: 10px;
+  }
+
+  /*底部评论栏右边图片*/
+  .foodR .xIcon {
+    position: relative;
+    top: 9px;
+    width: 20px;
+    height: 20px;
+  }
+
+  .foodR .xIcon1 {
+    margin-right: 12px;
+  }
+
+  .read {
+    border-left: 1px solid #e5e5e5;
+    padding-left: 10px;
+    font-size: 14px;
+    height: 21px;
+    margin-top: 9px;
+  }
+
+  /*输入框*/
+  #comCon {
+    margin-top: 7px;
+    padding-left: 30px;
+    width: 137px;
+    height: 26px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .gbhui {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+  }
+
+  /*详情和评论*/
+  .detalisBox {
+    margin-bottom: 39px;
+  }
+
+  /*评论部分*/
+  .comment {
+    background-color: #ffffff;
+    width: 100%;
+    margin-top: 14px;
+  }
+
+  /*每一条*/
+  .commentList {
+    display: flex;
+    padding-left: 10px;
+  }
+
+  /*左边头像*/
+  .comImg {
+    margin-top: 12px;
+    margin-bottom: 15px;
+    margin-right: 10px;
+    width: 67px;
+    height: 67px;
+  }
+
+  .comImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*右边内容*/
+  .comCon {
+    flex: 1;
+    padding-top: 17px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  /*右上*/
+  .comTop {
+    display: flex;
+    justify-content: space-between;
+    padding-right: 15px;
+    font-size: 0;
+  }
+
+  .comName {
+    font-size: 14px;
+    color: #000000;
+  }
+
+  .comNum {
+    display: inline-block;
+    vertical-align: top;
+    font-size: 12px;
+    line-height: 20px;
+    color: #000000;
+  }
+
+  .autoImg {
+    background: url("../../assets/wdz2x.png") no-repeat 0 0/100% 100%;
+    margin-top: -4px;
+    margin-left: 5px;
+    vertical-align: top;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+  }
+
+  .kkk .autoImg {
+    background: url("../../assets/ydz2x.png") no-repeat 0 0/100% 100%;
+    margin-top: -4px;
+    margin-left: 5px;
+    vertical-align: top;
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+  }
+
+  /*右下*/
+  .comBot {
+    width: 80%;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*收藏弹框*/
+  .collSucc-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 56;
+  }
+
+  .collSucc {
+    padding-top: 18px;
+    padding-bottom: 18px;
+    margin: 230px auto;
+    width: 138px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .collImgq {
+    margin: 0 auto;
+    width: 27px;
+    height: 27px;
+  }
+
+  .collImgq .kimh {
+    width: 100%;
+    height: 100%;
+  }
+
+  .collIcon {
+    width: 118px;
+    margin: 11px auto 0;
+    text-align: center;
+    font-size: 16px;
+    color: #FFFFFF;
+  }
+
+  /*导购*/
+  .sz {
+    padding-right: 13px;
+    padding-left: 13px;
+  }
+
+  .daoBox {
+    border: 1px solid #ececec;
+    margin-bottom: 10px;
+    border-radius: 10px;
+    width: 100%;
+    height: 90px;
+    padding: 15px 10px;
+    display: flex;
+  }
+
+  .daoLeft {
+    border-radius: 5px;
+    width: 139px;
+    height: 62px;
+    margin-right: 15px;
+  }
+
+  .daoLeft img {
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+  }
+
+  .daoRight {
+    flex: 1;
+  }
+
+  .daoRT {
+    font-size: 12px;
+    color: #000000;
+    margin-bottom: 10px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .daoRB {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .pri {
+    font-size: 12px;
+    color: #cc0000;
+  }
+
+  .goMai {
+    border: 1px solid #ececec;
+    margin-top: -3px;
+    width: 58px;
+    text-align: center;
+    height: 23px;
+    line-height: 21px;
+    color: #ffcf0f;
+    font-size: 12px;
+    border-radius: 3px;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        sz: true,
+        url: url,
+        message: "",
+        newId: "",
+        newuID: "",
+        newtitle: "",
+        newurl: "",
+        newtime: "",
+        newname: "",
+        newdesc: "",
+        num: "",
+        readys: "",
+        pic: "",
+        collType: "",
+        pshu: "",
+        val: {},
+        dairyType: 1,
+        sub: 0,
+        replyList: [],
+        dao: {},
+        shareSucc: false,
+        successImg: "/songbo/resources/static/img/tcg2.png",
+        successIcon: "收藏成功",
+        autoColl: "/songbo/resources/static/img/collw2x.png",
+        autoImg: false
+      };
+    },
+    created: function () {
+//  接收新闻id／作者id／文章标题／文章来源／发布时间／文章作者名字/文章描述/文章类型/是否收藏过的状态/文章封面图
+      this.newId = this.$route.params.newid;
+      this.newuID = this.$route.params.newuid;
+      this.newtitle = this.$route.params.newtitle;
+      this.newurl = this.$route.params.newurl;
+      this.newtime = this.$route.params.newtime;
+      this.newname = this.$route.params.newname;
+      this.newdesc = this.$route.params.newdesc;
+      this.num = this.$route.params.num;
+      this.readys = this.$route.params.readys;
+//      判断是否收藏过该文章
+      this.collType = this.$route.params.coll;
+      if (this.collType != 'null') {
+        this.collType = false;
+        this.autoColl = "/songbo/resources/static/img/collc2x.png";
+      } else {
+        this.collType = true;
+        this.autoColl = "/songbo/resources/static/img/collw2x.png";
+      }
+
+      var _this = this;
+//      获取导购
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/shoppingGuide',
+        data: {aid: _this.newId, artUid: _this.newuID},
+        success: function (response) {
+          if (response.error == 0) {
+            var daoObj = response.result;
+            if (!daoObj) {
+              _this.sz = false;
+            } else {
+              _this.dao = daoObj;
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+//      获取新闻内容
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/artcleList',
+        data: {cartId: _this.num},
+        success: function (response) {
+          if (response.error == 0) {
+            var gbDairyList = response.result;
+            for (var i = 0; i < gbDairyList.length; i++) {
+              if (gbDairyList[i].gbDairy.id == _this.newId && gbDairyList[i].gbDairy.dairyType == 2) {
+                _this.val = gbDairyList[i];
+                _this.dairyType = 2;
+              } else if (gbDairyList[i].gbDairy.id == _this.newId && gbDairyList[i].gbDairy.dairyType == 1) {
+                _this.val = gbDairyList[i];
+                _this.dairyType = 1;
+              }
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+//       获取评论列表
+      if (!user) {
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/replyList',
+          data: {aid: _this.newId, artcleUid: _this.newuID},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.replyList = response.result;
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      } else {
+        var userId = user.id;
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/replyList',
+          data: {aid: _this.newId, artcleUid: _this.newuID, uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.replyList = response.result;
+              for (var i = 0; i < _this.replyList.length; i++) {
+                if (_this.replyList[i].admire) {
+                  //切换点赞图标
+                  var thisItem = _this.replyList[i];
+                  _this.replyList.splice(i, 1, Object.assign({}, thisItem, {
+                    autoImg: true
+                  }));
+                }
+              }
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+    },
+    methods: {
+//    发表评论
+      sub2 () {
+//        判断是否有user
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          var _this = this;
+          var ping = _this.message;
+          var userId = user.id;
+          var userTitle = "http://img5.imgtn.bdimg.com/it/u=3033811559,4205265412&fm=23&gp=0.jpg";
+          var userName = "张三";
+          $.ajax({
+            type: 'POST',
+            url: url + '/artcle/sendReply',
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            data: {
+              uid: userId,                   //用户id
+              pic: userTitle,                //用户头像
+              content: ping,                 //评论内容
+              aid: _this.newId,              //文章id
+              artcleUid: _this.newuID,       //文章作者id
+              artcleUsername: _this.newname, //文章作者名字
+              artcleTitle: _this.newtitle,   //文章标题
+              replyUsername: userName        //用户名
+            },
+            success: function (response) {
+              if (response.error == 0) {
+//                  更新评论列表
+                $.ajax({
+                  type: 'GET',
+                  url: url + '/artcle/replyList',
+                  data: {aid: _this.newId, artcleUid: _this.newuID},
+                  success: function (response) {
+                    if (response.error == 0) {
+                      _this.replyList = response.result;
+                      _this.message = "";
+                    } else {
+                      alert(response.error_mesg);
+                    }
+                  }
+                });
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+//    收藏/取消收藏
+      collection () {
+//          判断是否有user
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+            console.log( this.collType);
+          var _this = this;
+          var userId = user.id;
+          var picPath = "http://img5.imgtn.bdimg.com/it/u=3033811559,4205265412&fm=23&gp=0.jpg";
+//          判断是否收藏过该文章
+          if (this.collType) {
+//              收藏
+            $.ajax({
+              type: 'POST',
+              url: url + '/artcle/collectionArt',
+              data: {
+                title: _this.newtitle,      //文章标题
+                aid: _this.newId,           //文章id
+                artUsername: _this.newname, //文章作者名字
+                artUid: _this.newuID,       //文章作者id
+                picPath1: picPath,          //文章封面图
+                uid: userId,                //用户id
+                artDesc: _this.newdesc      //文章描述
+              },
+              beforeSend: function (request) {
+                request.setRequestHeader("token", token);
+              },
+              success: function (response) {
+                if (response.error == 0) {
+//                收藏成功
+                  _this.shareSucc = true;
+                  _this.autoColl = "/songbo/resources/static/img/collc2x.png";
+                  var i = 1;
+                  var countdown = null;
+
+                  function timeShow() {
+                    i--;
+                    if (i < 1) {
+                      clearInterval(countdown);
+                      _this.shareSucc = false;
+                    }
+                  }
+                  countdown = setInterval(timeShow, 1000);
+                } else {
+                  alert(response.error_mesg);
+                }
+              }
+            });
+          } else {
+//              取消收藏
+            $.ajax({
+              type: 'POST',
+              url: url + '/artcle/canselCollection',
+              data: {
+                uid: userId,                //用户id
+                aid: _this.newId,           //文章id
+                artUid: _this.newuID,       //文章作者id
+              },
+              success: function (response) {
+                if (response.error == 0) {
+//                取消收藏
+                  _this.shareSucc = true;
+                  _this.successImg = "/songbo/resources/static/img/tsb2x.png";
+                  _this.autoColl = "/songbo/resources/static/img/collw2x.png";
+                  _this.successIcon = "取消收藏";
+                  var q = 1;
+                  var countdownq = null;
+
+                  function timeShowq() {
+                    q--;
+                    if (q < 1) {
+                      clearInterval(countdownq);
+                      _this.shareSucc = false;
+                    }
+                  }
+
+                  countdownq = setInterval(timeShowq, 1000);
+                } else {
+                  alert(response.error_mesg);
+                }
+              }
+            });
+          }
+
+        }
+      },
+//    点赞
+      autoImga (index) {
+        var _this = this;
+//        点赞接口
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          var userId = user.id;
+          var userName = user.username;
+          var replyId = _this.replyList[index].reply.id;
+          $.ajax({
+            type: 'POST',
+            url: url + '/artcle/Admire',
+            data: {
+              aid: _this.newId,           //文章id
+              uid: userId,                //当前用户id
+              username: userName,         //当前用户名
+              artcleUid: _this.newuID,    //文章作者id
+              artcleTitle: _this.newtitle,//文章标题
+              artcleDesc: _this.newdesc,  //文章描述
+              replyId: replyId,           //回复id
+              isCancel: 0                 //点赞
+            },
+            success: function (response) {
+              if (response.error == 0) {
+//                切换点赞图标
+                var thisItem = _this.replyList[index];
+                _this.replyList.splice(index, 1, Object.assign({}, thisItem, {
+                  autoImg: true
+                }));
+//                点赞数加1
+                _this.replyList[index].reply.admire = _this.replyList[index].reply.admire + 1;
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      },
+//      点击gb话题回答按钮
+      gbhui () {
+        this.sub = true;
+        $(".gbhui").focus();
+      }
+    }
+
+
+  };
+</script>
+
+
+
+

@@ -1,0 +1,115 @@
+<template>
+  <!--修改昵称-->
+  <div class="name">
+    <div class="namePlay">
+      <input type="text" id="name" v-model="ni">
+      <div class="cha">
+        <img src="../../assets/qu2x.png" @click="kong">
+      </div>
+    </div>
+    <div class="exit" @click="modnamea">
+      保存
+    </div>
+  </div>
+</template>
+
+<style>
+  .name {
+    background-color: #efeff4;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #name {
+    border: none;
+    outline: none;
+  }
+
+  .namePlay {
+    background-color: #FFFFFF;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    line-height: 56px;
+    width: 100%;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .namePlay input {
+    line-height: normal;
+    height: 30px;
+    flex: 1;
+    outline: none;
+    font-size: 16px;
+    color: #000000;
+  }
+
+  .cha {
+    position: relative;
+    top: -20px;
+    width: 18px;
+    height: 18px;
+  }
+
+  .cha img {
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        ni: ""
+      }
+    },
+    created: function () {
+      document.title = "修改昵称";
+//  接收昵称
+      this.ni = this.$route.params.ni;
+    },
+    methods: {
+//        清空
+      kong () {
+        $("#name").val("");
+      },
+//      修改昵称
+      modnamea () {
+        var _this = this;
+        var name = $("#name").val();
+        var yanPhone = user.phone;
+        if (name == "") {
+          alert("昵称不能为空！");
+        } else {
+          console.log(name);
+          $.ajax({
+            type: 'POST',
+            url: url + '/login/updateUser',
+            data: {phone: yanPhone, nickName: name},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                console.log(response);
+                user = response.result.user;
+                console.log(user);
+                var tokens = response.result.token;
+                token = tokens.key;
+                _this.$router.push({path: '/meDe'});
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      }
+    }
+  }
+</script>

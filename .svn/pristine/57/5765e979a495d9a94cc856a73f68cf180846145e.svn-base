@@ -1,0 +1,151 @@
+<template>
+  <!--意见反馈-->
+  <div class="feed">
+    <!--当前时间-->
+    <div class="nowTime" v-text="nowTime"></div>
+    <!--我的输入框-->
+    <div class="meInput" v-show="meInput">
+      <div class="meCons" v-text="opinCon"></div>
+      <div class="meImg">
+        <img src="https://ss0.baidu.com/6ONWsjip0QIZ8tyhnq/it/u=1598552568,4236159349&fm=58">
+      </div>
+    </div>
+    <!--输入框-->
+    <div class="opinInput">
+      <input type="text" class="form-control" id="opin" placeholder="把您的建议写在这里">
+      <div class="trans" @click="subOpin">发送</div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .feed {
+    border-top: 1px solid #e5e5e5;
+    background-color: #efeff4;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*当前时间*/
+  .nowTime {
+    margin-top: 13px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*输入框*/
+  .opinInput {
+    background-color: #FFFFFF;
+    border-top: 1px solid #adadad;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 15px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 42px;
+  }
+
+  .opinInput input {
+    font-size: 16px;
+    color: #999999;
+    margin-top: 4px;
+    flex: 1;
+  }
+
+  .trans {
+    padding-left: 14px;
+    line-height: 42px;
+    text-align: center;
+    font-size: 16px;
+    color: #ffcf0f;
+  }
+
+  /*我发表的信息*/
+  .meInput {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-right: 10px;
+  }
+
+  .meCons {
+    background-color: #ffcf0f;
+    width: 218px;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  .meImg {
+    margin-left: 5px;
+    border-radius: 5px;
+    width: 37px;
+    height: 37px;
+  }
+
+  .meImg img {
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        nowTime: "",
+        opinCon: "",
+        meInput: false
+      }
+    },
+    created: function () {
+      var d = new Date();
+      var vYear = d.getFullYear();
+      var vMon = d.getMonth() + 1;
+      var vDay = d.getDate();
+      var h = d.getHours();
+      var m = d.getMinutes();
+      var s = vYear + "." + (vMon < 10 ? "0" + vMon : vMon) + "." + (vDay < 10 ? "0" + vDay : vDay) + "  " + (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m);
+      this.nowTime = s;
+    },
+    methods: {
+//      提交意见
+      subOpin () {
+        if (!user) {
+          this.$router.push({path: '/login'});
+        } else {
+          var userId = user.id;
+          var option = $("#opin").val();
+          this.opinCon = option;
+          console.log(userId,option,token);
+          var _this = this;
+          $.ajax({
+            type: 'POST',
+            url: url + '/personal/option',
+            data: {uid: userId,content:option},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+                _this.meInput = true;
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      }
+    }
+  }
+</script>

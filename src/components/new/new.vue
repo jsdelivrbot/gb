@@ -1,0 +1,276 @@
+<template>
+  <!-- 资讯-->
+  <div class="pageNew">
+    <!--导航-->
+    <div class="tab">
+      <div class="sport pub" :class="{'selectTab':colorNum == 1}" @click="sport"><strong>运动</strong></div>
+      <div class="xian"></div>
+      <div class="ment pub" :class="{'selectTab':colorNum == 2}" @click="ment"><strong>装备</strong></div>
+    </div>
+    <!--新闻-->
+    <div class="newBox">
+      <keep-alive>
+        <component :is="currentView">
+          <!-- 非活动组件将被缓存！ -->
+        </component>
+      </keep-alive>
+    </div>
+  </div>
+</template>
+
+<style>
+  .sportNew .swiper-pagination-bullet {
+    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+  }
+
+  .sportNew .swiper-pagination-bullet-active {
+    border: 1px solid #FFFFFF;
+    background-color: #000000;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .pageNew {
+    background-color: #efeff4;
+  }
+
+  /*轮播图部分*/
+  .swiper-box {
+    width: 100%;
+  }
+
+  .swiper img {
+    width: 100%;
+  }
+
+  /*导航*/
+  .tab {
+    background-color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    font-size: 14px;
+    color: #000000;
+    z-index: 1000;
+  }
+
+  .sport, .ment {
+    position: relative;
+    width: 40px;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+    margin-right: 8px;
+  }
+
+  .pub:after,
+  .pub:before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    width: 0;
+    height: 3px;
+    background-color: #ffcf0f;
+    transition: all 0.3s;
+  }
+
+  /*中间的线*/
+  .xian {
+    border-left: 1px solid #eeeeee;
+    height: 12px;
+    margin-top: 14px;
+    margin-right: 8px;
+  }
+
+  /*选择的导航*/
+
+  .selectTab {
+    color: #ffcf0f;
+    font-size: 18px;
+  }
+
+  .selectTab:after,
+  .selectTab:before {
+    width: 50%;
+  }
+
+  .pub:after {
+    right: 50%;
+  }
+
+  .pub:before {
+    left: 50%;
+  }
+
+  /*新闻部分*/
+  .newBox {
+    margin-top: 40px;
+    margin-bottom: 59px;
+  }
+
+  .lan {
+    width: 100%;
+    height: 10px;
+    background-color: #efeff4;
+  }
+
+  .sportNew a, .mentNew a {
+    text-decoration: none;
+  }
+
+  .sportNew, .mentNew {
+    background-color: #FFFFFF;
+  }
+
+  .sportList, .mentList {
+    border-bottom: 1px solid #eeeeee;
+    background-color: #FFFFFF;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .fen {
+    display: flex;
+  }
+
+  /*新闻左边文本*/
+  .sportCon, .mentCon {
+    text-align: justify;
+    position: relative;
+    flex: 1;
+  }
+
+  .sportCon-title, .mentCon-title {
+    height: 2.8em;
+    overflow: hidden;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  .sportCon-play, .mentCon-play {
+    position: absolute;
+    bottom: 13px;
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .sport-comment, .sport-time, .ment-comment, .ment-time {
+    margin-left: 9px;
+  }
+
+  /*新闻右侧图片*/
+  .sportImg, .mentImg {
+    margin-left: 10px;
+    margin-top: 9px;
+    margin-bottom: 10px;
+    width: 134px;
+    height: 77px;
+  }
+
+  .sportImg img, .mentImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*GB话题*/
+  .gbtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 15px;
+    white-space: nowrap;
+  }
+
+  /*图片*/
+  .trends-img {
+    margin-top: 5px;
+    margin-bottom: 15px;
+  }
+
+  .list-imgss {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .trend-imge {
+    width: 32%;
+    height: 68px;
+  }
+
+  .trend-imge img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*最后一行*/
+  .gbplay {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #999999;
+    margin-bottom: 10px;
+  }
+
+  .gbsource {
+    padding-left: 3px;
+    padding-right: 3px;
+    border: 1px solid #ffcf0f;
+    border-radius: 3px;
+    font-size: 10px;
+    color: #ffcf0f;
+    width: 45px;
+    height: 15px;
+  }
+</style>
+
+<script>
+  import sportNew from '../new/sportNew.vue';
+  import mentNew from '../new/mentNew.vue';
+  export default {
+    props: [
+      "fromtype"
+    ],
+    data () {
+      return {
+        currentView: sportNew,
+        colorNum: 1
+      }
+    },
+    created: function () {
+      if (window.localStorage.index == 1) {
+        this.sport ();
+      }else if (window.localStorage.index == 2){
+        this.ment ();
+      }
+    },
+    components: {
+      sportNew,
+      mentNew
+    },
+    beforeDestroy () {
+      window.localStorage.removeItem("index");
+    },
+    methods: {
+//       运动新闻
+      sport () {
+        this.currentView = sportNew;
+        this.colorNum = 1;
+      },
+//      装备新闻
+      ment () {
+        this.currentView = mentNew;
+        this.colorNum = 2;
+      }
+    }
+  }
+</script>
+

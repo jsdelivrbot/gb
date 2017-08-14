@@ -1,0 +1,344 @@
+<template>
+  <!--意见反馈-->
+  <div class="feed" @click="qie">
+    <!--消息列表-->
+    <div class="meInput" v-show="meInput">
+      <ul>
+        <li class="conList" v-for="item in conList">
+          <!--用户反馈时间-->
+          <div class="nowTime" v-text="item.publicTime"></div>
+          <!--我发送的消息-->
+          <div class="meBoxs" v-show="item.content">
+            <div class="meCons" v-text="item.content"></div>
+            <div class="meImg">
+              <img :src="item.userPic">
+            </div>
+          </div>
+          <!--GB回复的消息-->
+          <div class="gbBoxs" v-show="item.replyContent">
+            <!--gb回复时间-->
+            <div class="nowTime1" v-text="item.replyTime"></div>
+            <div class="gbImg">
+              <img :src="item.adminPic">
+            </div>
+            <div class="gbCons" v-text="item.replyContent"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+    <!--原来的输入框-->
+    <div class="opinInput">
+      <input type="text" class="form-control" id="opin" placeholder="把您的建议写在这里" @click="writeInput">
+      <div class="trans">发送</div>
+    </div>
+    <!--新输入框-->
+    <div class="newInput" v-show="newInput" @click="noStop">
+      <textarea type="text" id="newInput" placeholder="把您的建议写在这里"></textarea>
+      <div class="fa" @click="subOpin">发表</div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .feed {
+    border-top: 1px solid #e5e5e5;
+    background-color: #efeff4;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*列表*/
+  .meInput {
+    margin-bottom: 42px;
+    padding-bottom: 13px;
+  }
+
+  /*我发送的时间*/
+  .nowTime {
+    margin-top: 13px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*小编回复的时间*/
+  .nowTime1 {
+    position: absolute;
+    top: -33px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #666666;
+  }
+
+  /*原来输入框*/
+  .opinInput {
+    background-color: #FFFFFF;
+    border-top: 1px solid #adadad;
+    display: flex;
+    justify-content: space-between;
+    padding-left: 10px;
+    padding-right: 15px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 42px;
+  }
+
+  .opinInput input {
+    font-size: 16px;
+    color: #999999;
+    margin-top: 4px;
+    flex: 1;
+  }
+
+  .trans {
+    padding-left: 14px;
+    line-height: 42px;
+    text-align: center;
+    font-size: 16px;
+    color: #ffcf0f;
+  }
+
+  /*新输入框*/
+  #newInput::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .newInput {
+    position: fixed;
+    bottom: 0;
+    border-top: 1px solid #cccccc;
+    padding-top: 10px;
+    padding-bottom: 5px;
+    padding-left: 5px;
+    padding-right: 5px;
+    width: 100%;
+    height: 145px;
+    background-color: #eeeeee;
+    z-index: 9999;
+  }
+
+  #newInput {
+    border: 1px solid #cccccc;
+    background-color: #fafafa;
+    border-radius: 5px;
+    padding-left: 7px;
+    height: 94px;
+    width: 100%;
+    font-size: 16px;
+    color: #0;
+    outline: none;
+  }
+
+  .fa {
+    background-color: #fafafa;
+    float: right;
+    border: 1px solid #cccccc;
+    border-radius: 5px;
+    width: 60px;
+    text-align: center;
+    height: 24px;
+    line-height: 24px;
+    font-size: 14px;
+    color: #ffcf0f;
+  }
+
+  /*我发送的消息条*/
+  .meBoxs {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 16px;
+    padding-right: 10px;
+  }
+
+  .meCons {
+    background-color: #ffcf0f;
+    width: 218px;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 14px;
+    color: #000000;
+    word-break:break-all; /*支持IE，chrome，FF不支持*/
+    word-wrap:break-word;/*支持IE，chrome，FF*/
+  }
+
+  .meImg {
+    margin-left: 5px;
+    border-radius: 5px;
+    width: 37px;
+    height: 37px;
+  }
+
+  .meImg img {
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+  }
+
+  /*gb回复的消息条*/
+  .gbBoxs {
+    position: relative;
+    display: flex;
+    margin-top: 76px;
+    margin-bottom: 60px;
+    padding-right: 10px;
+  }
+
+  .gbCons {
+    background-color: #FFFFFF;
+    width: 218px;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 14px;
+    color: #000000;
+    word-break:break-all; /*支持IE，chrome，FF不支持*/
+    word-wrap:break-word;/*支持IE，chrome，FF*/
+  }
+
+  .gbImg {
+    margin-right: 5px;
+    border-radius: 5px;
+    width: 37px;
+    height: 37px;
+  }
+
+  .gbImg img {
+    border-radius: 5px;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        meInput: true,    //显示消息的框
+        newInput: false,  //新文本框
+        conList: []      //消息列表
+      }
+    },
+    created: function () {
+      document.title = "意见反馈";
+      var _this = this;
+      //    时间戳转换日期
+      function getNowc(t) {
+        var date = new Date(t);
+        return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + (date.getDate() + ' ' + (date.getHours()) + ':' + (date.getMinutes()) + ':' + (date.getSeconds()));
+      }
+
+      function timesc() {
+        _this.conList.map((v) => {
+          return (v.publicTime = getNowc(Number(v.publicTime)));
+        });
+      }
+
+      //      获取消息列表
+      $.ajax({
+        type: 'GET',
+        url: url + '/personal/backOption',
+        data: {uid: userId},
+        success: function (response) {
+          if (response.error == 0) {
+//            如果消息列表为空，就不显示
+            if (response.result.length == 0) {
+              _this.meInput = false;
+            } else {
+//            消息列表负值
+              _this.conList = response.result;
+              timesc();
+            }
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+    },
+    methods: {
+//        点击空白处隐藏输入框
+      qie (e) {
+        this.newInput = false;
+      },
+//        点击输入框显示输入框
+      writeInput(e){
+        e.stopPropagation();
+        this.newInput = !this.newInput;
+        setTimeout(function () {
+          $("#newInput").focus();
+        }, 20);
+      },
+//      阻止事件冒泡
+      noStop (e) {
+        e.stopPropagation();
+      },
+//      提交意见
+      subOpin () {
+        //      获取头像
+        var titleImg = user.headPicPath;
+        //用户名
+        var useN = user.username;
+//        用户id
+        userId = user.id;
+//        发表内容
+        var option = $("#newInput").val();
+        var _this = this;
+        //    时间戳转换日期
+        function getNowl(t) {
+          var date = new Date(t);
+          return date.getFullYear() + '.' + (date.getMonth() + 1) + '.' + (date.getDate() + ' ' + (date.getHours()) + ':' + (date.getMinutes()) + ':' + (date.getSeconds()));
+        }
+
+        function timesl() {
+          _this.conList.map((v) => {
+            return (v.publicTime = getNowl(Number(v.publicTime)));
+          });
+        }
+//        判断意见是否为空
+        if (option != "") {
+          //        发表意见
+          $.ajax({
+            type: 'POST',
+            url: url + '/personal/option',
+            data: {uid: userId, content: option, userPic: titleImg, username: useN},
+            beforeSend: function (request) {
+              request.setRequestHeader("token", token);
+            },
+            success: function (response) {
+              if (response.error == 0) {
+//                 发表成功刷新列表
+                $.ajax({
+                  type: 'GET',
+                  url: url + '/personal/backOption',
+                  data: {uid: userId},
+                  success: function (response) {
+                    if (response.error == 0) {
+//                      如果消息列表为空，就不显示
+                      if (response.result.length == 0) {
+                        _this.meInput = false;
+                      } else {
+//                          消息列表负值
+                        _this.conList = response.result;
+                        timesl();
+                      }
+                    } else {
+                      alert(response.error_mesg);
+                    }
+                  }
+                });
+                $("#newInput").val("");
+                _this.newInput = false;
+              } else {
+                alert(response.error_mesg);
+              }
+            }
+          });
+        }
+      }
+    }
+  }
+</script>

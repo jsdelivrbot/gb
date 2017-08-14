@@ -1,0 +1,498 @@
+<template>
+  <!-- 资讯-->
+  <div class="pageNew">
+    <!--导航-->
+    <div class="tab">
+      <div class="sport" :class="{'selectTab':colorNum == 1}" @click="sport"><strong>运动</strong></div>
+      <div class="xian"></div>
+      <div class="ment" :class="{'selectTab':colorNum == 2}" @click="ment"><strong>装备</strong></div>
+    </div>
+    <!--新闻-->
+    <div class="newBox">
+      <!--运动新闻-->
+      <div class="sportNew" v-show="colorNum == 1" >
+        <!--运动轮播图-->
+        <swiper class="swiper-box" :options="swiperOption">
+          <swiper-slide class="swiper" v-for="slide in sportImg" :key="slide">
+            <img :src="slide.url">
+          </swiper-slide>
+          <div class="swiper-pagination" slot="pagination"></div>
+        </swiper>
+        <div class="lan"></div>
+        <!--运动新闻内容-->
+        <ul>
+          <li class="sportList" :class="{'fen':sportitem.gbDairy.dairyType == 1}" v-for="sportitem in sportNew"
+              @click="goDeta(sportitem.gbDairy.id,
+              sportitem.gbDairy.uid,
+              sportitem.gbDairy.title,
+              sportitem.gbDairy.dairyType,
+              sportitem.gbDairy.publishTime,
+              sportitem.gbDairy.username,
+              sportitem.gbDairy.description,
+              1,
+              sportitem.collection,
+              sportitem.gbDairy.replys
+              )">
+            <!--普通新闻-->
+            <div class="sportCon" v-show="sportitem.gbDairy.dairyType == 1">
+              <div class="sportCon-title" v-text="sportitem.gbDairy.title"></div>
+              <div class="sportCon-play">
+                <span class="sport-source" v-text="sportitem.gbDairy.dairyType"></span>
+                <span class="sport-comment" v-text="sportitem.gbDairy.replys+'评论'"></span>
+                <span class="sport-time" v-text="sportitem.gbDairy.publishTime"></span>
+              </div>
+            </div>
+            <div class="sportImg" v-show="sportitem.gbDairy.dairyType == 1">
+              <img :src="sportitem.gbDairy.picPath">
+            </div>
+            <!--GB话题-->
+            <div class="gbtitle" v-show="sportitem.gbDairy.dairyType == 2" v-text="sportitem.gbDairy.title"></div>
+            <div class="trends-img" v-show="sportitem.gbDairy.dairyType == 2">
+              <ul class="list-imgss">
+                <li class="trend-img" v-for="img in sportitem.pics">
+                  <img :src="img.filePath">
+                </li>
+              </ul>
+            </div>
+            <div class="gbplay" v-show="sportitem.gbDairy.dairyType == 2">
+              <span class="gbsource">GB话题</span>
+              <span class="sport-comment" v-text="sportitem.gbDairy.replys+'评论'"></span>
+              <span class="sport-time" v-text="sportitem.gbDairy.publishTime"></span>
+            </div>
+          </li>
+        </ul>
+        <!--<infinite-loading :on-infinite="onInfinite" ref="infiniteLoading"></infinite-loading>-->
+      </div>
+      <!--装备新闻-->
+      <div class="mentNew" v-show="colorNum == 2">
+        <!--装备轮播图-->
+        <swiper class="swiper-box" :options="swiperOption">
+          <swiper-slide class="swiper" v-for="slide1 in mentImg" :key="slide1">
+            <img :src="slide1.url"/>
+          </swiper-slide>
+          <div class="swiper-pagination" slot="pagination"></div>
+        </swiper>
+        <div class="lan"></div>
+        <!--装备新闻内容-->
+        <ul>
+          <li class="mentList" :class="{'fen':mentitem.gbDairy.dairyType == 1}" v-for="mentitem in mentNew"
+              @click="goDeta(mentitem.gbDairy.id,
+              mentitem.gbDairy.uid,
+              mentitem.gbDairy.title,
+              mentitem.gbDairy.dairyType,
+              mentitem.gbDairy.publishTime,
+              mentitem.gbDairy.username,
+              mentitem.gbDairy.description,
+              2,
+              mentitem.collection,
+              sportitem.gbDairy.replys
+              )">
+            <!--普通新闻-->
+            <div class="mentCon" v-show="mentitem.gbDairy.dairyType == 1">
+              <div class="mentCon-title" v-text="mentitem.gbDairy.title"></div>
+              <div class="mentCon-play">
+                <span class="ment-source" v-text="mentitem.gbDairy.dairyType"></span>
+                <span class="ment-comment" v-text="mentitem.gbDairy.replys+'评论'"></span>
+                <span class="ment-time" v-text="mentitem.gbDairy.publishTime"></span>
+              </div>
+            </div>
+            <div class="mentImg" v-show="mentitem.gbDairy.dairyType == 1">
+              <img :src="mentitem.gbDairy.picPath">
+            </div>
+            <!--GB话题-->
+            <div class="gbtitle" v-show="mentitem.gbDairy.dairyType == 2" v-text="mentitem.gbDairy.title"></div>
+            <div class="trends-img" v-show="mentitem.gbDairy.dairyType == 2">
+              <ul class="list-imgs">
+                <li class="trend-img" v-for="img in mentitem.pics">
+                  <img :src="img.filePath">
+                </li>
+              </ul>
+            </div>
+            <div class="gbplay" v-show="mentitem.gbDairy.dairyType == 2">
+              <span class="gbsource">GB话题</span>
+              <span class="sport-comment" v-text="mentitem.gbDairy.replys+'评论'"></span>
+              <span class="sport-time" v-text="mentitem.gbDairy.publishTime"></span>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  .sportNew .swiper-pagination-bullet {
+    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 1;
+  }
+
+  .sportNew .swiper-pagination-bullet-active {
+    border: 1px solid #FFFFFF;
+    background-color: #000000;
+  }
+
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .pageNew {
+    background-color: #efeff4;
+  }
+
+  /*轮播图部分*/
+  .swiper-box {
+    width: 100%;
+    height: 174px;
+  }
+
+  .swiper img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*导航*/
+  .tab {
+    background-color: #ffffff;
+    width: 100%;
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    font-size: 14px;
+    color: #000000;
+    z-index: 1000;
+  }
+
+  .sport, .ment {
+    width: 40px;
+    text-align: center;
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .sport {
+    margin-right: 8px;
+  }
+
+  .ment {
+    margin-left: 8px;
+  }
+
+  /*中间的线*/
+  .xian {
+    border-left: 1px solid #999999;
+    height: 12px;
+    margin-top: 14px;
+  }
+
+  /*选择的导航*/
+  .selectTab {
+    border-bottom: 2px solid #ffcf0f;
+    color: #ffcf0f;
+    font-size: 18px;
+  }
+
+  /*新闻部分*/
+  .newBox {
+    margin-top: 40px;
+    margin-bottom: 59px;
+    border-top: 1px solid #cccccc;
+  }
+
+  .lan {
+    width: 100%;
+    height: 10px;
+    background-color: #efeff4;
+  }
+
+  .sportNew a, .mentNew a {
+    text-decoration: none;
+  }
+
+  .sportNew, .mentNew {
+    background-color: #FFFFFF;
+  }
+
+  .sportList, .mentList {
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #FFFFFF;
+    width: 100%;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .fen {
+    display: flex;
+  }
+
+  /*新闻左边文本*/
+  .sportCon, .mentCon {
+    flex: 1;
+  }
+
+  .sportCon-title, .mentCon-title {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    margin-top: 15px;
+    font-size: 14px;
+    color: #000000;
+  }
+
+  .sportCon-play, .mentCon-play {
+    margin-top: 10px;
+    font-size: 12px;
+    color: #999999;
+  }
+
+  .sport-comment, .sport-time, .ment-comment, .ment-time {
+    margin-left: 9px;
+  }
+
+  /*新闻右侧图片*/
+  .sportImg, .mentImg {
+    margin-top: 9px;
+    margin-bottom: 10px;
+    width: 134px;
+    height: 77px;
+  }
+
+  .sportImg img, .mentImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*GB话题*/
+  .gbtitle {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 15px;
+    white-space: nowrap;
+  }
+
+  /*图片*/
+  .trends-img {
+    margin-top: 5px;
+    margin-bottom: 15px;
+  }
+
+  .list-imgss {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .trend-imge {
+    width: 32%;
+    height: 68px;
+  }
+
+  .trend-imge img {
+    width: 100%;
+    height: 100%;
+  }
+
+  /*最后一行*/
+  .gbplay {
+    margin-top: 15px;
+    font-size: 12px;
+    color: #999999;
+    margin-bottom: 10px;
+  }
+
+  .gbsource {
+    padding-left: 3px;
+    padding-right: 3px;
+    border: 1px solid #ffcf0f;
+    border-radius: 3px;
+    font-size: 10px;
+    color: #ffcf0f;
+    width: 45px;
+    height: 15px;
+  }
+</style>
+
+<script>
+  import {swiper, swiperSlide, swiperPlugins} from 'vue-awesome-swiper';
+//  import InfiniteLoading from 'vue-infinite-loading';
+  export default{
+    data () {
+      return {
+        topStatus: '',
+        colorNum: 1,
+        sportNew: [],
+        mentNew: [],
+        sportImg: [],
+        mentImg: [],
+        swiperOption: {
+          autoplay: 3000,                       //自动播放间隔时间
+          setWrapperSize: true,
+          pagination: '.swiper-pagination',
+          paginationClickable: true,            //点击某一个圆点跳转到相应图片
+          autoplayDisableOnInteraction: false   //操作之后会继续自动滑动
+        },
+        pageInt: 1
+      };
+    },
+    created: function () {
+      var _this = this;
+      //    时间戳转换日期
+      function getNow(t) {
+        var date = new Date(t);
+        return (date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + (date.getDate()) + '日');
+      }
+
+      function times() {
+        _this.sportNew.map((v) => {
+          return (v.gbDairy.publishTime = getNow(Number(v.gbDairy.publishTime)));
+        });
+      }
+
+      function getNow1(t1) {
+        var date = new Date(t1);
+        return (date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + (date.getDate()) + '日');
+      }
+
+      function times1() {
+        _this.mentNew.map((v1) => {
+          return (v1.gbDairy.publishTime = getNow1(Number(v1.gbDairy.publishTime)));
+        });
+      }
+
+//      运动新闻轮播图
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/carouselPicsList',
+        data: {cartId: 1},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.sportImg = response.result;
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+      //      装备新闻轮播图
+      $.ajax({
+        type: 'GET',
+        url: url + '/artcle/carouselPicsList',
+        data: {cartId: 2},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.mentImg = response.result;
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+      if (!user) {
+//        运动新闻内容
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/artcleList',
+          data: {cartId: 1},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.sportNew = response.result;
+              console.log( _this.sportNew);
+              times();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+//        装备新闻内容
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/artcleList',
+          data: {cartId: 2},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.mentNew = response.result;
+              console.log( _this.mentNew);
+              times1();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }else{
+        var userId = user.id;
+//        运动新闻内容
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/artcleList',
+          data: {cartId: 1,uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.sportNew = response.result;
+              console.log(_this.sportNew);
+              times();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+//        装备新闻内容
+        $.ajax({
+          type: 'GET',
+          url: url + '/artcle/artcleList',
+          data: {cartId: 2,uid: userId},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.mentNew = response.result;
+              times1();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+    },
+    methods: {
+//        运动／装备导航切换
+      sport () {
+        this.colorNum = 1;
+      },
+      ment () {
+        this.colorNum = 2;
+      },
+//      点击某一条新闻进入详情页
+      goDeta (newId, newuId, newTitle, newUrl, newTime, newName, newDesc, num, coll, readys) {
+        this.$router.push({path: '/detalis/' + newId + '/' + newuId + '/' + newTitle + '/' + newUrl + '/' + newTime + '/' + newName + '/' + newDesc + '/' + num + '/' + coll + '/' + readys});
+      },
+      // 上拉加载
+//      onInfinite() {
+//        var _this = this;
+//          $.ajax({
+//            type: 'GET',
+//            url: url + '/artcle/artcleList',
+//            data: {cartId: 1,page: 2,pageSize:6},
+//            success: function (response) {
+//              if (response.error == 0) {
+//                var sd = response.result;
+//                _this.sportNew = _this.sportNew.concat(sd);
+////              times();
+////                for (let i = _this.sportNew.length + 1; i <= _this.sportNew.length + 20; i++) {
+////                  _this.sportNew.push(i);
+////                }
+////                this.$refs.infiniteLoading.$emit('$InfiniteLoading:loaded');
+//              } else {
+//                alert(response.error_mesg);
+//              }
+//            }
+//          });
+//      },
+    },
+    components: {
+      //InfiniteLoading,
+      swiper,
+      swiperSlide
+    }
+
+  };
+</script>
+

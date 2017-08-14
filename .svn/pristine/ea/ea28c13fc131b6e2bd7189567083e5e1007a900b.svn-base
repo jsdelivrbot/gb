@@ -1,0 +1,89 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "vue-slide",
+        "scope": null,
+        "escapedName": "vue-slide",
+        "name": "vue-slide",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/Users/fanyulong/gb"
+    ]
+  ],
+  "_from": "vue-slide@latest",
+  "_id": "vue-slide@1.1.1",
+  "_inCache": true,
+  "_location": "/vue-slide",
+  "_nodeVersion": "6.2.1",
+  "_npmOperationalInternal": {
+    "host": "packages-18-east.internal.npmjs.com",
+    "tmp": "tmp/vue-slide-1.1.1.tgz_1481210883986_0.7285517358686775"
+  },
+  "_npmUser": {
+    "name": "imawe",
+    "email": "hilongjw@qq.com"
+  },
+  "_npmVersion": "3.9.3",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "vue-slide",
+    "scope": null,
+    "escapedName": "vue-slide",
+    "name": "vue-slide",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/vue-slide/-/vue-slide-1.1.1.tgz",
+  "_shasum": "7f36bc8bd88da94d6883d5307cd9fdfa9b4e62e3",
+  "_shrinkwrap": null,
+  "_spec": "vue-slide",
+  "_where": "/Users/fanyulong/gb",
+  "author": {
+    "name": "Awe"
+  },
+  "bugs": {
+    "url": "https://github.com/hilongjw/vue-slide/issues"
+  },
+  "dependencies": {},
+  "description": "# Demo",
+  "devDependencies": {},
+  "directories": {},
+  "dist": {
+    "shasum": "7f36bc8bd88da94d6883d5307cd9fdfa9b4e62e3",
+    "tarball": "https://registry.npmjs.org/vue-slide/-/vue-slide-1.1.1.tgz"
+  },
+  "gitHead": "c730647fe32348b3fb51cf10052c0a314a4852c9",
+  "homepage": "https://github.com/hilongjw/vue-slide#readme",
+  "keywords": [
+    "vue",
+    "vue-slide",
+    "vue slide",
+    "vue component"
+  ],
+  "license": "MIT",
+  "main": "vue-slide.es5.vue",
+  "maintainers": [
+    {
+      "name": "imawe",
+      "email": "hilongjw@qq.com"
+    }
+  ],
+  "name": "vue-slide",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hilongjw/vue-slide.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "version": "1.1.1"
+}

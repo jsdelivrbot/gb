@@ -1,0 +1,346 @@
+<template>
+  <!--添加新账户-->
+  <div class="add">
+    <div class="addBox">
+      <div class="add-list">
+        <div class="add-title">手机号码</div>
+        <div class="add-input">
+          <input type="tel" class="add-tel" placeholder="请输入">
+        </div>
+      </div>
+      <div class="add-list">
+        <div class="add-title">Nike官网账号</div>
+        <div class="add-input">
+          <input type="text" class="add-num" placeholder="请输入">
+        </div>
+      </div>
+      <div class="add-list">
+        <div class="add-title">Nike官网密码</div>
+        <div class="add-input">
+          <input type="password" class="add-password" placeholder="请输入">
+        </div>
+      </div>
+    </div>
+    <div class="food" @click="add">
+      保存
+    </div>
+    <!--验证账号-->
+    <div class="valid-box" v-show="valid">
+      <div class="valid">
+        <div class="validImg">
+          <img :src="validimg" :class="{'zhu': zhuan == 0}">
+        </div>
+        <div class="validIcon" v-text="validIcon"></div>
+      </div>
+    </div>
+    <!-- 报名成功-->
+    <div class="shareSucc-box" v-show="shareSucc">
+      <div class="shareSucc">
+        <div class="successImg">
+          <img :src="successImg">
+        </div>
+        <div class="successIcon" v-text="successIcon"></div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<style>
+  /*报名成功*/
+  .shareSucc-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 56;
+  }
+
+  .shareSucc {
+    padding-top: 20px;
+    margin: 230px auto;
+    width: 138px;
+    height: 90px;
+    border-radius: 16px;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .successImg {
+    margin: 0 auto 20px;
+    width: 27px;
+    height: 27px;
+  }
+
+  .successImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .successIcon {
+    text-align: center;
+    font-size: 15px;
+    color: #FFFFFF;
+  }
+
+  /*验证成功*/
+  .valid-box {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 56;
+  }
+
+  .valid {
+    padding-top: 17px;
+    padding-bottom: 18px;
+    margin: 230px auto;
+    width: 152px;
+    border-radius: 10px;
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+
+  .validImg {
+    margin: 0 auto;
+    width: 27px;
+    height: 27px;
+  }
+
+  .validImg img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .validIcon {
+    width: 110px;
+    text-align: center;
+    margin: 11px auto 0;
+    font-size: 16px;
+    color: #FFFFFF;
+  }
+  .zhu {
+    animation: rr 1s linear infinite;
+    width: 100%;
+    height: 100%;
+  }
+
+  @keyframes rr {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .add-tel::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .add-num::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .add-password::-webkit-input-placeholder {
+    color: #cccccc;
+  }
+
+  .add {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #efeff4;
+  }
+
+  .addBox {
+    margin-top: 14px;
+  }
+
+  .add-list {
+    display: flex;
+    padding-left: 20px;
+    padding-right: 20px;
+    height: 56px;
+    line-height: 56px;
+    border-bottom: 1px solid #e5e5e5;
+    background-color: #FFFFFF;
+  }
+
+  .add-title {
+    font-size: 16px;
+    width: 6.5em;
+    flex-shrink: 0;
+    margin-right: 20px;
+  }
+
+  .add-input {
+    width: 100%;
+    font-size: 16px;
+    color: #000000;
+  }
+
+  .add-input input {
+    width: 100%;
+    height: 30px;
+    font-size: 16px;
+    color: #666666;
+    line-height: normal;
+    border: none;
+    outline: none;
+  }
+
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        shareSucc: false,
+        successImg: "/songbo/resources/static/img/tcg2x.png",
+        successIcon: "报名成功",
+        zhuan: 0,
+        valid: false,
+        validimg: "",
+        validIcon: ""
+      }
+    },
+    created: function () {
+      document.title = "绑定账户";
+    },
+    methods: {
+//    添加
+      add () {
+        var tel = $(".add-tel").val();
+        var num = $(".add-num").val();
+        var password = $(".add-password").val();
+//       添加账户
+        if (tel == "") {
+          alert("手机号不能为空！");
+        } else if (num == "") {
+          alert("账号不能为空！");
+        } else if (password == "") {
+          alert("密码不能为空！");
+        } else {
+          var _this = this;
+//            验证耐克官网账号
+          _this.valid = true;
+          _this.validimg = "/songbo/resources/static/img/jz2x.png";
+          _this.validIcon = "正在验证账号...";
+          $.ajax({
+            type: 'GET',
+            url: url + '/login/checkNikeAccount',
+            data: {nikename: num, nikepassword: password},
+            success: function (response) {
+              var errorCode = response.error;
+              var j = 1;
+              var countdown1 = null;
+
+              function timeShowq() {
+                j--;
+                if (j < 1) {
+                  if (errorCode == 0) {
+                    clearInterval(countdown1);
+                    _this.validimg = "/songbo/resources/static/img/tcg2x.png";
+                    _this.validIcon = "账号验证成功";
+                    _this.zhuan = "1";
+                    var i = 1;
+                    var countdown2 = null;
+
+                    function timeShow2() {
+                      i--;
+                      if (i < 1) {
+                        clearInterval(countdown2);
+                        _this.valid = false;
+                        userId = user.id;
+//                          添加账户
+                        $.ajax({
+                          type: 'POST',
+                          url: url + '/Shoes/saveNikeuser',
+                          data: {uid: userId, nikeAccount: num, nikePassword: password, phone: tel},
+                          beforeSend: function (request) {
+                            request.setRequestHeader("token", token);
+                          },
+                          headers: {token: token},
+                          success: function (response) {
+                            if (response.error != 0) {
+                              alert(response.error_mesg);
+                            }else{
+                                console.log(response);
+//                                抢鞋请求
+                              $.ajax({
+                                type: 'POST',
+                                url: url + '/Shoes/saveBuyNikeshoes',
+                                data: {
+                                  shoeStyleId: shoeID2,
+                                  uid: userId,
+                                  size: shoesSize,
+                                  url: shoeUrl,
+                                  shoeDesc: shoeC,
+                                  shoeName: shoeN,
+                                  shoesPicPath: shoePic
+                                },
+                                beforeSend: function (request) {
+                                  request.setRequestHeader("token", token);
+                                },
+                                success: function (response) {
+                                  if (response.error == 0) {
+                                    _this.shareSucc = true;
+                                    var f = 2;
+                                    var countdowni = null;
+
+                                    function timeShowi() {
+                                      f--;
+                                      if (f < 1) {
+                                        clearInterval(countdowni);
+                                        _this.shareSucc = false;
+                                        _this.$router.push({path: '/ready'});
+                                      }
+                                    }
+
+                                    countdowni = setInterval(timeShowi, 1000);
+                                  } else {
+                                    alert(response.error_mesg);
+                                  }
+                                }
+                              });
+                            }
+                          }
+                        });
+                      }
+                    }
+                    countdown2 = setInterval(timeShow2, 1000);
+                  } else if (errorCode == 1) {
+                    clearInterval(countdown1);
+                    _this.validimg = "/songbo/resources/static/img/tsb2x.png";
+                    _this.validIcon = "账号验证失败请重新输入";
+                    _this.zhuan = "1";
+                    var i = 1;
+                    var countdown3 = null;
+
+                    function timeShow3() {
+                      i--;
+                      if (i < 1) {
+                        clearInterval(countdown3);
+                        _this.valid = false;
+                      }
+                    }
+                    countdown3 = setInterval(timeShow3, 1000);
+                  }
+                }
+              }
+              countdown1 = setInterval(timeShowq, 1000);
+            }
+          });
+        }
+      }
+    }
+
+  };
+</script>

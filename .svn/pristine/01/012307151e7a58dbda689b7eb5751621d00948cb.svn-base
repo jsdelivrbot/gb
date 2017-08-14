@@ -1,0 +1,316 @@
+<template>
+  <!--发售日历-->
+  <div class="sellTime">
+    <div class="sellTop">
+      <!--选择年份-->
+      <div class="sellYear" @click="yearControl">2017</div>
+      <ul class="year" v-show="show == true">
+        <li class="yearList" :class="{'selectYear': index == YearId}" v-for="(years,index) in yearList" v-text="years.year" @click="selectYear(index)"></li>
+      </ul>
+      <!--选择月份-->
+      <div class="sellMon">
+        <ul>
+          <li class="monList" :class="{'selectMon':index == MonId}" v-for="(mons,index) in monList" v-text="mons.mon" @click="selectMon(index)"></li>
+        </ul>
+      </div>
+    </div>
+    <!--预售列表-->
+    <div class="presell">
+      <ul>
+        <li class="presellList" v-for="item in sellShoes">
+          <div class="presellImg">
+            <div class="banner-item" :style="'background-image: url('+item.shoePicPath+')'"><img src="../../assets/timeImg.png"></div>
+          </div>
+          <div class="presellCon">
+            <div class="presellName" v-text="item.shoeName"></div>
+            <div class="presellTime" v-text="item.publicTime"></div>
+            <div class="presellPrice" v-text="'¥' + item.price"></div>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </div>
+</template>
+
+<style>
+  /*日期导航条*/
+  .sellTop {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #e5e5e5;
+    position: fixed;
+    display: flex;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 38px;
+  }
+  /*年份*/
+  .sellYear {
+    background-color: #ffcf0f;
+    width: 75px;
+    text-align: center;
+    height: 38px;
+    line-height: 38px;
+    font-size: 14px;
+    color: #FFFFFF;
+  }
+  .year {
+    position: absolute;
+    top: 38px;
+    left: 0;
+  }
+  .yearList {
+    background-color: #FFFFFF;
+    border-bottom: 1px solid #e5e5e5;
+    width: 75px;
+    text-align: center;
+    height: 38px;
+    line-height: 38px;
+    font-size: 14px;
+    color: #ffcf0f;
+  }
+  /*选中某一个年份*/
+  .selectYear {
+    background-color: #cccccc;
+    color: #FFFFFF;
+  }
+  /*月份*/
+  .sellMon{
+    height: 38px;
+    line-height: 38px;
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .sellMon ul{
+    overflow-x: scroll;
+    display: flex;
+    flex-wrap: nowrap;
+    flex-grow: 1;
+  }
+  .sellMon ul li{
+    height: 38px;
+    line-height: 38px;
+    width: 75px;
+    text-align: center;
+    flex-shrink: 0;
+  }
+   /*选中的月份*/
+  .selectMon{
+    border-bottom: 3px solid #ffcf0f;
+    color: #ffcf0f;
+  }
+/*预售列表*/
+.presell{
+  margin-top: 38px;
+}
+/*每一条*/
+  .presellList{
+    border-bottom: 1px solid #e5e5e5;
+    display: flex;
+  }
+/*鞋子图片*/
+  .presellImg{
+    margin-right: 10px;
+    width: 116px;
+    height: 76px;
+  }
+  .presellImg img{
+    width: 100%;
+    height: 100%;
+  }
+  /*右边文字*/
+  .presellCon{
+    flex: 1;
+  }
+  .presellName{
+    font-size: 14px;
+    color: #000000;
+    width: 190px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .presellTime{
+    font-size: 14px;
+    color: #666666;
+  }
+  .presellPrice{
+    margin-top: 5px;
+    font-size: 14px;
+    font-weight: 700;
+    color: #ff1212;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        show: false,
+        YearId: 0,
+        yearList: [
+          {year: "2017"},
+          {year: "2018"},
+          {year: "2019"},
+          {year: "2020"}
+        ],
+        monList: [
+          {mon: "一月"},
+          {mon: "二月"},
+          {mon: "三月"},
+          {mon: "四月"},
+          {mon: "五月"},
+          {mon: "六月"},
+          {mon: "七月"},
+          {mon: "八月"},
+          {mon: "九月"},
+          {mon: "十月"},
+          {mon: "十一月"},
+          {mon: "十二月"}
+        ],
+        MonId: 0,
+        sellShoes: []
+      }
+    },
+    created: function () {
+        document.title = "发售日历";
+      var _this = this;
+      function getNow6(t) {
+        var date = new Date(t);
+        var ling;
+        if (date.getMonth() + 1 > 9) {
+          ling = "";
+        }else {
+          ling = "0";
+        }
+        return (ling + (date.getMonth() + 1) + '/' + date.getDate());
+      }
+
+      function times6() {
+        _this.sellShoes.map((v) => {
+          return (v.publicTime = getNow6(Number(v.publicTime)));
+        });
+      }
+      //          获取当前的年月
+      var selYear = this.yearList[this.YearId].year;
+      var monCon = this.MonId + 1;
+      var newMon;
+      if (monCon>9) {
+        newMon = "";
+      }else {
+        newMon = "0";
+      }
+      var nowTime = selYear+"-" + newMon + monCon + "-" + "01" + " " + "00:00:00";
+      $.ajax({
+        type: 'GET',
+        url: url + '/Shoes/preSell',
+        data: {time: nowTime},
+        success: function (response) {
+          if (response.error == 0) {
+            _this.sellShoes = response.preSell;
+            times6();
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+    },
+    methods: {
+//      切换年份显示隐藏
+      yearControl () {
+        this.show = !this.show;
+      },
+//      选择某一个年份
+      selectYear (YearNum) {
+        this.YearId = YearNum;
+        $(".sellYear").text(this.yearList[YearNum].year);
+        this.show = !this.show;
+//          获取当前的年月
+        var _this = this;
+        function getNow7(t) {
+          var date = new Date(t);
+          var ling;
+          if (date.getMonth() + 1 > 9) {
+            ling = "";
+          }else {
+            ling = "0";
+          }
+          return (ling + (date.getMonth() + 1) + '/' + date.getDate());
+        }
+
+        function times7() {
+          _this.sellShoes.map((v) => {
+            return (v.publicTime = getNow7(Number(v.publicTime)));
+          });
+        }
+        var selYear = this.yearList[this.YearId].year;
+        var monCon = this.MonId + 1;
+        var newMon;
+        if (monCon>9) {
+          newMon = "";
+        }else {
+          newMon = "0";
+        }
+        var nowTime = selYear+"-" + newMon + monCon + "-" + "01" + " " + "00:00:00";
+        $.ajax({
+          type: 'GET',
+          url: url + '/Shoes/preSell',
+          data: {time: nowTime},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.sellShoes = response.preSell;
+              times7();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      },
+//      选择某一个月份
+      selectMon (MonNum) {
+        this.MonId = MonNum;
+//          获取当前的年月
+        var _this = this;
+        function getNow8(t) {
+          var date = new Date(t);
+          var ling;
+          if (date.getMonth() + 1 > 9) {
+            ling = "";
+          }else {
+            ling = "0";
+          }
+          return (ling + (date.getMonth() + 1) + '/' + date.getDate());
+        }
+
+        function times8() {
+          _this.sellShoes.map((v) => {
+            return (v.publicTime = getNow8(Number(v.publicTime)));
+          });
+        }
+        var selYear = this.yearList[this.YearId].year;
+        var monCon = this.MonId + 1;
+        var newMon;
+        if (monCon>9) {
+          newMon = "";
+        }else {
+          newMon = "0";
+        }
+        var nowTime = selYear+"-" + newMon + monCon + "-" + "01" + " " + "00:00:00";
+        $.ajax({
+          type: 'GET',
+          url: url + '/Shoes/preSell',
+          data: {time: nowTime},
+          success: function (response) {
+            if (response.error == 0) {
+              _this.sellShoes = response.preSell;
+              times8();
+            } else {
+              alert(response.error_mesg);
+            }
+          }
+        });
+      }
+    }
+  }
+</script>

@@ -1,0 +1,134 @@
+<template>
+  <!--抢鞋动态-->
+  <div class="trends">
+    <!--抢鞋动态-->
+    <ul>
+      <li class="tren" v-for="item in ready">
+        <!--描述-->
+        <div class="trends-title">
+          恭喜#{{item.autoShoes.userName}}#于{{item.autoShoes.autoTime}}成功抢到#{{item.autoShoes.shoeName}}#一双!
+          <a :href="item.autoShoes.url"><img src="../../assets/lj2x.png">网页链接</a>
+        </div>
+        <!--图片-->
+        <div class="trends-img">
+          <ul class="list-imgs">
+            <li class="trend-img" v-for="img in item.pics">
+              <img :src="img.filePath">
+            </li>
+          </ul>
+        </div>
+        <div class="autoTime" v-text="item.autoShoes.autoTime"></div>
+        <div class="kong"></div>
+      </li>
+    </ul>
+  </div>
+</template>
+
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+  }
+
+  .trends{
+    margin-top: 38px;
+    z-index: 1;
+  }
+
+  .tren {
+    padding-top: 5px;
+  }
+
+  .tren a {
+    text-decoration: none;
+    color: #ffcf0f;
+    font-size: 14px;
+    margin-left: 9px;
+  }
+
+  /*描述*/
+  .trends-title {
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 14px;
+    color: #000000;
+    margin-bottom: 8px;
+  }
+
+  .trends-title img {
+    height: 15px;
+    width: 15px;
+  }
+
+  /*图片*/
+  .list-imgs {
+    margin-left: 10px;
+    margin-right: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .trend-img {
+    width: 32%;
+    height: 0px;
+    padding-top: 32%;
+    position: relative;
+  }
+
+  .trend-img img {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .autoTime {
+    font-size: 12px;
+    color: #666666;
+    margin-left: 15px;
+    margin-top: 16px;
+    margin-bottom: 10px;
+  }
+</style>
+
+<script>
+  export default{
+    data () {
+      return {
+        ready: []
+      }
+    },
+    created: function () {
+      var _this = this;
+      //    时间戳转换日期
+      function getNow(t) {
+        var date = new Date(t);
+        return (date.getFullYear() + '年' + (date.getMonth() + 1) + '月' + (date.getDate()) + '日');
+      }
+
+      function times() {
+        _this.ready.map((v) => {
+          return (v.autoShoes.autoTime = getNow(Number(v.autoShoes.autoTime)));
+        });
+      }
+      $.ajax({
+        type: 'GET',
+        url: url + '/Shoes/dynamicShoes',
+        data: {fileType: 3},
+        success: function (response) {
+          if (response.error == 0) {
+//            获取信息内容
+            _this.ready = response.result.list;
+            times();
+          } else {
+            alert(response.error_mesg);
+          }
+        }
+      });
+    }
+
+
+  };
+</script>
